@@ -5,7 +5,11 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { google } from "googleapis";
 import { z } from "zod";
 import crypto from "node:crypto";
+import { execFile } from "node:child_process";
+import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
+import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 import { renderAccessPage } from "./views/accessPage.js";
 import { renderReceiptPage } from "./views/receiptPage.js";
@@ -13,6 +17,7 @@ import { renderReceiptPage } from "./views/receiptPage.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, "..");
+const execFileAsync = promisify(execFile);
 
 const app = express();
 const upload = multer({
@@ -23,6 +28,13 @@ const upload = multer({
 const PORT = process.env.PORT || 3000;
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 const GEMINI_MAX_RETRIES = Number(process.env.GEMINI_MAX_RETRIES || 2);
+const PADDLE_OCR_PYTHON = process.env.PADDLE_OCR_PYTHON || "python";
+const PADDLE_OCR_CACHE_DIR = path.resolve(
+  projectRoot,
+  process.env.PADDLE_OCR_CACHE_DIR || ".paddle-cache"
+);
+const PADDLE_OCR_SCRIPT = path.join(projectRoot, "scripts", "paddle_ocr.py");
+const PADDLE_OCR_TIMEOUT_MS = Number(process.env.PADDLE_OCR_TIMEOUT_MS || 120000);
 const ID_SHEET_NAME = process.env.GOOGLE_SHEETS_ID_WORKSHEET_NAME || "ID";
 const EXPENSE_SHEET_NAME = process.env.GOOGLE_SHEETS_WORKSHEET_NAME || "EXPENSES";
 const APP_TIME_ZONE = process.env.APP_TIME_ZONE || "Asia/Bangkok";
@@ -34,6 +46,9 @@ const AUTH_MAX_AGE_SECONDS = 60 * 60 * 12;
 const productSchema = z.object({
   name: z.string(),
   total: z.number().nullable(),
+  status: z.enum(["Paid", "Unpaid"]).nullable().optional(),
+  dueDate: z.string().nullable().optional(),
+  paymentType: z.enum(["Cash", "Credit Card", "Online Banking"]).nullable().optional(),
 });
 
 const expenseSchema = z.object({
@@ -49,7 +64,7 @@ const nullableNumberSchema = { type: Type.NUMBER, nullable: true };
 const expenseSheetHeaders = [
   "Date",
   "Product",
-  "Total",
+  "Price",
   "Status",
   "Due Date",
   "Payment_Type",
@@ -156,6 +171,7 @@ function getHealthStatus() {
   return {
     ok: true,
     geminiConfigured: Boolean(process.env.GEMINI_API_KEY),
+    paddleOcrEnabled: true,
     googleSheetsConfigured: Boolean(
       process.env.GOOGLE_SHEETS_SPREADSHEET_ID &&
         process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL &&
@@ -287,7 +303,7 @@ async function findUserByPass(pass) {
 }
 
 async function ensureSheetHeader(sheets, spreadsheetId, sheetName) {
-  const headerRange = `${sheetName}!A1:F1`;
+  const headerRange = `${sheetName}!A1:H1`;
   const existing = await sheets.spreadsheets.values.get({
     spreadsheetId,
     range: headerRange,
@@ -308,6 +324,123 @@ async function ensureSheetHeader(sheets, spreadsheetId, sheetName) {
     requestBody: {
       values: [expenseSheetHeaders],
     },
+  });
+}
+
+async function getSheetId(sheets, spreadsheetId, sheetName) {
+  const spreadsheet = await sheets.spreadsheets.get({
+    spreadsheetId,
+    fields: "sheets.properties(sheetId,title)",
+  });
+  const sheet = spreadsheet.data.sheets?.find(
+    (item) => item.properties?.title === sheetName
+  );
+
+  if (!sheet?.properties?.sheetId && sheet?.properties?.sheetId !== 0) {
+    throw new Error(`Sheet "${sheetName}" was not found.`);
+  }
+
+  return sheet.properties.sheetId;
+}
+
+function parseUpdatedRowRange(updatedRange) {
+  const match = String(updatedRange || "").match(/![A-Z]+(\d+):[A-Z]+(\d+)$/);
+
+  if (!match) {
+    return null;
+  }
+
+  return {
+    startRow: Number(match[1]),
+    endRow: Number(match[2]),
+  };
+}
+
+async function formatSubmittedRows(sheets, spreadsheetId, sheetName, rows, updatedRange) {
+  const rowRange = parseUpdatedRowRange(updatedRange);
+
+  if (!rowRange) {
+    return;
+  }
+
+  const sheetId = await getSheetId(sheets, spreadsheetId, sheetName);
+  const requests = [
+    {
+      repeatCell: {
+        range: {
+          sheetId,
+          startRowIndex: rowRange.startRow - 1,
+          endRowIndex: rowRange.endRow,
+          startColumnIndex: 6,
+          endColumnIndex: 7,
+        },
+        cell: {
+          userEnteredFormat: {
+            backgroundColor: { red: 1, green: 1, blue: 1 },
+            textFormat: { bold: false },
+          },
+        },
+        fields: "userEnteredFormat.backgroundColor,userEnteredFormat.textFormat.bold",
+      },
+    },
+  ];
+  const totalRowOffset = rows.findIndex((row) => row[6] === "Total");
+
+  if (totalRowOffset >= 0) {
+    const totalRowIndex = rowRange.startRow - 1 + totalRowOffset;
+    requests.push({
+      repeatCell: {
+        range: {
+          sheetId,
+          startRowIndex: totalRowIndex,
+          endRowIndex: totalRowIndex + 1,
+          startColumnIndex: 6,
+          endColumnIndex: 7,
+        },
+        cell: {
+          userEnteredFormat: {
+            backgroundColor: { red: 1, green: 1, blue: 0 },
+            textFormat: { bold: true },
+          },
+        },
+        fields: "userEnteredFormat.backgroundColor,userEnteredFormat.textFormat",
+      },
+    });
+  }
+
+  rows.forEach((row, index) => {
+    if (String(row[3] || "").toLowerCase() !== "unpaid") {
+      return;
+    }
+
+    const rowIndex = rowRange.startRow - 1 + index;
+    requests.push({
+      repeatCell: {
+        range: {
+          sheetId,
+          startRowIndex: rowIndex,
+          endRowIndex: rowIndex + 1,
+          startColumnIndex: 3,
+          endColumnIndex: 4,
+        },
+        cell: {
+          userEnteredFormat: {
+            backgroundColor: { red: 0.86, green: 0.2, blue: 0.25 },
+            textFormat: { foregroundColor: { red: 1, green: 1, blue: 1 }, bold: true },
+          },
+        },
+        fields: "userEnteredFormat.backgroundColor,userEnteredFormat.textFormat",
+      },
+    });
+  });
+
+  if (!requests.length) {
+    return;
+  }
+
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId,
+    requestBody: { requests },
   });
 }
 
@@ -334,22 +467,246 @@ function getExpenseProducts(expense) {
   return [{ name: "", total: expense.total }];
 }
 
+function getExpenseTotal(expense) {
+  if (expense.total !== null && expense.total !== undefined) {
+    return expense.total;
+  }
+
+  const productTotal = getExpenseProducts(expense).reduce((sum, product) => {
+    const price = Number(product.total);
+    return Number.isFinite(price) ? sum + price : sum;
+  }, 0);
+
+  return productTotal ? Number(productTotal.toFixed(2)) : null;
+}
+
 function buildSheetRows(expense, submittedAt = formatSheetDate()) {
-  return getExpenseProducts(expense).map((product) => [
+  const rows = getExpenseProducts(expense).map((product) => [
     submittedAt,
     product.name,
     product.total ?? expense.total ?? "",
-    expense.status || "",
-    expense.status === "Unpaid" ? expense.dueDate || "" : "",
-    expense.paymentType || "",
+    product.status ?? expense.status ?? "",
+    (product.status ?? expense.status) === "Unpaid"
+      ? product.dueDate ?? expense.dueDate ?? ""
+      : "",
+    product.paymentType ?? expense.paymentType ?? "",
+    "",
+    "",
   ]);
+  const total = getExpenseTotal(expense);
+
+  if (total !== null) {
+    if (!rows.length) {
+      rows.push(["", "", "", "", "", "", "", ""]);
+    }
+
+    rows[rows.length - 1][6] = "Total";
+    rows[rows.length - 1][7] = total;
+  }
+
+  return rows;
 }
 
 function buildSheetPreview(expense) {
   return {
     headers: expenseSheetHeaders,
-    rows: buildSheetRows(expense, "Created when submitted"),
+    rows: getExpenseProducts(expense).map((product) => [
+      "Created when submitted",
+      product.name,
+      product.total ?? expense.total ?? "",
+      product.status ?? expense.status ?? "",
+      (product.status ?? expense.status) === "Unpaid"
+        ? product.dueDate ?? expense.dueDate ?? ""
+        : "",
+      product.paymentType ?? expense.paymentType ?? "",
+    ]),
+    total: getExpenseTotal(expense),
   };
+}
+
+function parseMoney(value) {
+  const matches = String(value || "").match(/-?\d[\d,]*(?:[.,]\d{1,2})?/g);
+
+  if (!matches?.length) {
+    return null;
+  }
+
+  const normalized = matches[matches.length - 1]
+    .replace(/,/g, ".")
+    .replace(/\.(?=.*\.)/g, "");
+  const amount = Number(normalized);
+  return Number.isFinite(amount) ? amount : null;
+}
+
+function normalizeOcrText(text) {
+  return String(text || "")
+    .replace(/\r/g, "")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function findTotal(lines) {
+  const totalWords = /^(grand\s*)?total\b|^total\s*to\s*pay\b|^amount\s*due\b|^balance\b|^net\s*amount\b/i;
+  const ignoredWords = /subtotal|sub\s*total|tax|vat|change|cash|payment\s*per\s*guest/i;
+
+  for (let index = lines.length - 1; index >= 0; index -= 1) {
+    const line = lines[index];
+
+    if (totalWords.test(line) && !ignoredWords.test(line)) {
+      const amount = parseMoney(line);
+
+      if (amount !== null) {
+        return amount;
+      }
+
+      const nextAmount = parseMoney(lines[index + 1]);
+
+      if (nextAmount !== null) {
+        return nextAmount;
+      }
+    }
+  }
+
+  return null;
+}
+
+function isAmountOnly(line) {
+  return /^[^\d-]*-?\d[\d,.]*[.,]\d{2}$/.test(String(line || "").trim());
+}
+
+function cleanProductName(line) {
+  return String(line || "")
+    .replace(/[$€£฿]\s*$/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+function extractProducts(lines, skipWords) {
+  const products = [];
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    const sameLineMatch = line.match(/^(.+?)\s+([$€£฿]?\s*\d[\d,.]*[.,]\d{2})$/);
+
+    if (sameLineMatch && !skipWords.test(line)) {
+      const name = cleanProductName(sameLineMatch[1]);
+      const amount = parseMoney(sameLineMatch[2]);
+
+      if (name.length >= 2 && amount !== null) {
+        products.push({ name, total: amount });
+      }
+
+      continue;
+    }
+
+    const nextLine = lines[index + 1];
+
+    if (
+      nextLine &&
+      isAmountOnly(nextLine) &&
+      !isAmountOnly(line) &&
+      !skipWords.test(line)
+    ) {
+      const name = cleanProductName(line);
+      const amount = parseMoney(nextLine);
+
+      if (name.length >= 2 && amount !== null) {
+        products.push({ name, total: amount });
+      }
+
+      index += 1;
+    }
+  }
+
+  return products.slice(0, 30);
+}
+
+function getLineItemCandidates(lines) {
+  const totalIndex = lines.findIndex((line) =>
+    /^total\b|^total\s*to\s*pay\b/i.test(line)
+  );
+  const dateIndex = lines.findIndex((line) =>
+    /\bdate\b|\d{1,2}[-/]\d{1,2}[-/]\d{2,4}/i.test(line)
+  );
+  const tableIndex = lines.findIndex((line) => /\btable\b|\bcovers?\b/i.test(line));
+  const startIndex = tableIndex >= 0 ? tableIndex + 1 : dateIndex >= 0 ? dateIndex + 1 : 0;
+  const endIndex = totalIndex >= 0 ? totalIndex : lines.length;
+
+  return lines.slice(startIndex, endIndex);
+}
+
+function parseOcrExpense(rawText) {
+  const text = normalizeOcrText(rawText);
+  const lines = text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const skipWords = /address|tel|date|receipt|table|covers?|server|total|subtotal|sub\s*total|tax|vat|change|cash|payment|paid|balance|thank|service|phone|email|reg|master/i;
+  const total = findTotal(lines);
+  let products = extractProducts(getLineItemCandidates(lines), skipWords);
+
+  if (!products.length) {
+    products = extractProducts(lines, skipWords);
+  }
+
+  return expenseSchema.parse({
+    products,
+    total,
+    status: "Paid",
+    dueDate: null,
+    paymentType: null,
+  });
+}
+
+async function extractPaddleOcrText(file) {
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "receipt-ocr-"));
+  const extension = path.extname(file.originalname || "") || ".jpg";
+  const imagePath = path.join(tempDir, `receipt${extension}`);
+
+  try {
+    await fs.writeFile(imagePath, file.buffer);
+
+    const { stdout } = await execFileAsync(PADDLE_OCR_PYTHON, [
+      PADDLE_OCR_SCRIPT,
+      imagePath,
+    ], {
+      env: {
+        ...process.env,
+        FLAGS_enable_pir_api: process.env.FLAGS_enable_pir_api || "0",
+        HOME: PADDLE_OCR_CACHE_DIR,
+        PADDLE_HOME: PADDLE_OCR_CACHE_DIR,
+        PADDLEOCR_HOME: PADDLE_OCR_CACHE_DIR,
+        USERPROFILE: PADDLE_OCR_CACHE_DIR,
+        XDG_CACHE_HOME: PADDLE_OCR_CACHE_DIR,
+      },
+      timeout: PADDLE_OCR_TIMEOUT_MS,
+      maxBuffer: 10 * 1024 * 1024,
+      windowsHide: true,
+    });
+    const parsed = JSON.parse(stdout);
+
+    if (!parsed.ok) {
+      throw new Error(parsed.error || "PaddleOCR failed.");
+    }
+
+    return normalizeOcrText(parsed.text);
+  } catch (error) {
+    if (error?.code === "ENOENT") {
+      throw new Error(
+        `Python command "${PADDLE_OCR_PYTHON}" was not found. Set PADDLE_OCR_PYTHON in .env.`
+      );
+    }
+
+    if (error?.stdout) {
+      const parsed = parseJsonMessage(error.stdout);
+      throw new Error(parsed?.error || error.message);
+    }
+
+    throw error;
+  } finally {
+    await fs.rm(tempDir, { recursive: true, force: true });
+  }
 }
 
 async function appendToSheet(expense) {
@@ -362,18 +719,27 @@ async function appendToSheet(expense) {
   const sheets = getSheetsClient();
 
   await ensureSheetHeader(sheets, spreadsheetId, sheetName);
+  const rows = buildSheetRows(expense);
 
-  await sheets.spreadsheets.values.append({
+  const appendResult = await sheets.spreadsheets.values.append({
     spreadsheetId,
-    range: `${sheetName}!A:F`,
+    range: `${sheetName}!A:H`,
     valueInputOption: "USER_ENTERED",
     insertDataOption: "INSERT_ROWS",
     requestBody: {
-      values: buildSheetRows(expense),
+      values: rows,
     },
   });
 
-  return { skipped: false, rowsAdded: buildSheetRows(expense).length };
+  await formatSubmittedRows(
+    sheets,
+    spreadsheetId,
+    sheetName,
+    rows,
+    appendResult.data.updates?.updatedRange
+  );
+
+  return { skipped: false, rowsAdded: rows.length };
 }
 
 async function extractExpenseData(file) {
@@ -425,6 +791,14 @@ async function extractExpenseData(file) {
 }
 
 app.use("/assets", express.static(path.join(projectRoot, "public")));
+app.use(
+  "/vendor/tesseract",
+  express.static(path.join(projectRoot, "node_modules", "tesseract.js", "dist"))
+);
+app.use(
+  "/vendor/tesseract-core",
+  express.static(path.join(projectRoot, "node_modules", "tesseract.js-core"))
+);
 app.use(express.json());
 
 app.get("/", (_req, res) => {
@@ -484,6 +858,30 @@ app.post("/api/receipts/analyze", requireAuth, upload.single("receipt"), async (
   } catch (error) {
     const { httpStatus, message } = getClientError(error);
     return res.status(httpStatus).json({ error: message });
+  }
+});
+
+app.post("/api/receipts/ocr", requireAuth, upload.single("receipt"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No receipt image uploaded." });
+    }
+
+    const rawText = await extractPaddleOcrText(req.file);
+    const parsedExpense = parseOcrExpense(rawText);
+
+    return res.json({
+      success: true,
+      engine: "paddleocr",
+      message: "Receipt read with PaddleOCR. Review the preview before submitting.",
+      receipt: parsedExpense,
+      sheetPreview: buildSheetPreview(parsedExpense),
+      rawText,
+    });
+  } catch (error) {
+    return res.status(503).json({
+      error: error instanceof Error ? error.message : "PaddleOCR failed.",
+    });
   }
 });
 

@@ -92,6 +92,9 @@ export function renderReceiptPage(user = {}) {
           </div>
           <div class="sheet-preview" id="resultOutput">Loading...</div>
           <div class="result-actions">
+            <button class="confirm-button hidden" id="confirmEditButton" type="button">
+              Edit
+            </button>
             <button class="submit-button hidden" id="submitButton" type="button">
               Submit to Google Sheets
             </button>
@@ -99,7 +102,8 @@ export function renderReceiptPage(user = {}) {
         </article>
       </section>
     </main>
-    <script type="module" src="/assets/upload.js"></script>
+    <script src="/vendor/tesseract/tesseract.min.js"></script>
+    <script type="module" src="/assets/upload.js?v=currency-price-1"></script>
   </body>
 </html>`;
 }

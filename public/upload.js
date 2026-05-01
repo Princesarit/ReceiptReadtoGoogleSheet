@@ -7,6 +7,7 @@ const previewPanel = document.getElementById("previewPanel");
 const imagePreview = document.getElementById("imagePreview");
 const previewName = document.getElementById("previewName");
 const analyzeButton = document.getElementById("analyzeButton");
+const confirmEditButton = document.getElementById("confirmEditButton");
 const submitButton = document.getElementById("submitButton");
 const statusText = document.getElementById("statusText");
 const resultOutput = document.getElementById("resultOutput");
@@ -18,8 +19,10 @@ const captureCanvas = document.getElementById("captureCanvas");
 let currentFile = null;
 let cameraStream = null;
 let analyzedReceipt = null;
+let draftReceipt = null;
+let isEditingReceipt = false;
+let ocrWorker = null;
 let healthState = {
-  geminiConfigured: false,
   googleSheetsConfigured: false,
   loaded: false,
 };
@@ -28,12 +31,6 @@ function refreshReadyState() {
   if (!healthState.loaded) {
     analyzeButton.disabled = true;
     statusText.textContent = "Checking configuration";
-    return;
-  }
-
-  if (!healthState.geminiConfigured) {
-    analyzeButton.disabled = true;
-    statusText.textContent = "Gemini API key is missing";
     return;
   }
 
@@ -57,17 +54,13 @@ async function loadHealthStatus() {
     const data = await response.json();
 
     healthState = {
-      geminiConfigured: Boolean(data.geminiConfigured),
       googleSheetsConfigured: Boolean(data.googleSheetsConfigured),
       loaded: true,
     };
 
-    if (!healthState.geminiConfigured) {
+    if (!healthState.googleSheetsConfigured) {
       resultOutput.textContent =
-        "Add GEMINI_API_KEY=... to the .env file, then restart the server.";
-    } else if (!healthState.googleSheetsConfigured) {
-      resultOutput.textContent =
-        "Receipt analysis is available, but Google Sheets settings are missing in .env.";
+        "OCR is ready. Google Sheets settings are missing in .env, so results will stay on this page.";
     } else {
       resultOutput.textContent = "No receipt has been analyzed yet.";
     }
@@ -93,17 +86,19 @@ function setMode(mode) {
 function renderPreview(file) {
   currentFile = file;
   analyzedReceipt = null;
+  draftReceipt = null;
   previewName.textContent = file.name;
   imagePreview.src = URL.createObjectURL(file);
   previewPanel.classList.remove("hidden");
+  confirmEditButton.classList.add("hidden");
   submitButton.classList.add("hidden");
   refreshReadyState();
 }
 
 function setBusyState(isBusy) {
-  analyzeButton.disabled = isBusy || !healthState.geminiConfigured || !currentFile;
+  analyzeButton.disabled = isBusy || !currentFile;
   analyzeButton.textContent = isBusy
-    ? "Analyzing receipt..."
+    ? "Reading receipt..."
     : "Analyze receipt";
 }
 
@@ -112,6 +107,17 @@ function setSubmitBusyState(isBusy) {
   submitButton.textContent = isBusy
     ? "Submitting..."
     : "Submit to Google Sheets";
+}
+
+function setConfirmVisible(isVisible) {
+  confirmEditButton.classList.toggle("hidden", !isVisible);
+  confirmEditButton.disabled = !isVisible;
+}
+
+function setEditButtonMode(mode) {
+  isEditingReceipt = mode === "confirm";
+  confirmEditButton.textContent = isEditingReceipt ? "Confirm edits" : "Edit";
+  setConfirmVisible(Boolean(analyzedReceipt || draftReceipt));
 }
 
 function formatPreviewValue(value) {
@@ -133,6 +139,12 @@ function escapeHtml(value) {
 function renderSheetPreview(sheetPreview) {
   const headers = sheetPreview.headers || [];
   const rows = sheetPreview.rows || [];
+  const total =
+    sheetPreview.total !== null && sheetPreview.total !== undefined
+      ? `<div class="preview-total"><span>Total</span><strong>${escapeHtml(
+          sheetPreview.total
+        )}</strong></div>`
+      : "";
   const headerCells = headers
     .map((header) => `<th>${escapeHtml(header)}</th>`)
     .join("");
@@ -147,14 +159,394 @@ function renderSheetPreview(sheetPreview) {
     .join("");
 
   resultOutput.innerHTML = `
-    <div class="preview-note">Review this data before sending it to Google Sheets.</div>
     <div class="preview-scroll">
       <table class="preview-table">
         <thead><tr>${headerCells}</tr></thead>
         <tbody>${bodyRows}</tbody>
       </table>
     </div>
+    ${total}
   `;
+}
+
+function getReceiptTotal(receipt) {
+  if (receipt.total !== null && receipt.total !== undefined) {
+    return receipt.total;
+  }
+
+  const total = (receipt.products || []).reduce((sum, product) => {
+    const price = Number(product.total);
+    return Number.isFinite(price) ? sum + price : sum;
+  }, 0);
+
+  return Number(total.toFixed(2));
+}
+
+function renderEditableReceipt(receipt) {
+  draftReceipt = {
+    products: (receipt.products || []).map((product) => ({
+      ...product,
+      status: product.status ?? receipt.status ?? "Paid",
+      dueDate: product.dueDate ?? receipt.dueDate ?? null,
+      paymentType: product.paymentType ?? receipt.paymentType ?? null,
+    })),
+    total: receipt.total,
+    status: receipt.status || "Paid",
+    dueDate: receipt.dueDate || null,
+    paymentType: receipt.paymentType || null,
+  };
+  analyzedReceipt = null;
+  setEditButtonMode("confirm");
+  submitButton.classList.add("hidden");
+  statusText.textContent = "Edit and confirm before submitting";
+
+  const rows = draftReceipt.products.length
+    ? draftReceipt.products
+    : [{ name: "", total: draftReceipt.total }];
+  const bodyRows = rows
+    .map(
+      (product, index) => `
+        <tr data-row-index="${index}">
+          <td>
+            <input class="table-input product-input" data-field="name" value="${escapeHtml(
+              product.name
+            )}" />
+          </td>
+          <td>
+            <input class="table-input price-input" data-field="total" inputmode="decimal" value="${escapeHtml(
+              product.total ?? ""
+            )}" />
+          </td>
+          <td>
+            <select class="table-input status-input" data-field="status">
+              <option value="Paid" ${product.status === "Paid" ? "selected" : ""}>Paid</option>
+              <option value="Unpaid" ${product.status === "Unpaid" ? "selected" : ""}>Unpaid</option>
+            </select>
+          </td>
+          <td>
+            <input class="table-input due-date-input" data-field="dueDate" placeholder="DD/MM/YYYY" value="${escapeHtml(
+              product.dueDate || ""
+            )}" />
+          </td>
+          <td>
+            <select class="table-input payment-input" data-field="paymentType">
+              <option value="" ${!product.paymentType ? "selected" : ""}>-</option>
+              <option value="Cash" ${product.paymentType === "Cash" ? "selected" : ""}>Cash</option>
+              <option value="Credit Card" ${product.paymentType === "Credit Card" ? "selected" : ""}>Credit Card</option>
+              <option value="Online Banking" ${product.paymentType === "Online Banking" ? "selected" : ""}>Online Banking</option>
+            </select>
+          </td>
+        </tr>
+      `
+    )
+    .join("");
+
+  resultOutput.innerHTML = `
+    <div class="preview-scroll">
+      <table class="preview-table editable-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Status</th>
+            <th>Due Date</th>
+            <th>Payment_Type</th>
+          </tr>
+        </thead>
+        <tbody>${bodyRows}</tbody>
+      </table>
+    </div>
+    <div class="preview-total"><span>Total</span><strong id="editableTotal">${escapeHtml(
+      getReceiptTotal(draftReceipt)
+    )}</strong></div>
+  `;
+
+  resultOutput
+    .querySelectorAll(".table-input")
+    .forEach((input) => input.addEventListener("input", handleDraftInput));
+  resultOutput
+    .querySelectorAll("select.table-input")
+    .forEach((input) => input.addEventListener("change", handleDraftInput));
+}
+
+function handleDraftInput(event) {
+  if (!draftReceipt) {
+    return;
+  }
+
+  const row = event.target.closest("tr");
+  const index = Number(row?.dataset.rowIndex);
+  const field = event.target.dataset.field;
+
+  if (Number.isInteger(index) && draftReceipt.products[index]) {
+    draftReceipt.products[index][field] =
+      field === "total" ? parseMoney(event.target.value) : event.target.value;
+  }
+
+  draftReceipt.total = getReceiptTotal({
+    ...draftReceipt,
+    total: null,
+  });
+  const totalElement = document.getElementById("editableTotal");
+
+  if (totalElement) {
+    totalElement.textContent = formatPreviewValue(draftReceipt.total);
+  }
+
+  analyzedReceipt = null;
+  submitButton.classList.add("hidden");
+  setEditButtonMode("confirm");
+  statusText.textContent = "Confirm edits before submitting";
+}
+
+function enterEditMode() {
+  if (isEditingReceipt) {
+    confirmEdits();
+    return;
+  }
+
+  if (!analyzedReceipt) {
+    statusText.textContent = "Analyze a receipt first";
+    return;
+  }
+
+  renderEditableReceipt(analyzedReceipt);
+}
+
+function confirmEdits() {
+  if (!draftReceipt) {
+    statusText.textContent = "Analyze a receipt first";
+    return;
+  }
+
+  analyzedReceipt = {
+    products: draftReceipt.products
+      .map((product) => ({
+        name: String(product.name || "").trim(),
+        total: product.total ?? null,
+        status: product.status || "Paid",
+        dueDate: product.status === "Unpaid" ? product.dueDate || null : null,
+        paymentType: product.paymentType || null,
+      }))
+      .filter((product) => product.name || product.total !== null),
+    total: draftReceipt.total,
+    status: null,
+    dueDate: null,
+    paymentType: null,
+  };
+  draftReceipt = null;
+  setEditButtonMode("edit");
+  statusText.textContent = "Edits confirmed";
+  renderSheetPreview(buildLocalSheetPreview(analyzedReceipt));
+  submitButton.classList.toggle("hidden", !healthState.googleSheetsConfigured);
+}
+
+function normalizeOcrText(text) {
+  return String(text || "")
+    .replace(/\r/g, "")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function parseMoney(value) {
+  const matches = String(value || "").match(/-?\d[\d,]*(?:\.\d{1,2})?/g);
+
+  if (!matches?.length) {
+    return null;
+  }
+
+  const amount = Number(matches[matches.length - 1].replace(/,/g, ""));
+  return Number.isFinite(amount) ? amount : null;
+}
+
+function findTotal(lines) {
+  const totalWords = /^(grand\s*)?total\b|^amount\s*due\b|^balance\b|^net\s*amount\b/i;
+  const ignoredWords = /subtotal|sub\s*total|tax|vat|change|cash/i;
+
+  for (let index = lines.length - 1; index >= 0; index -= 1) {
+    const line = lines[index];
+
+    if (totalWords.test(line) && !ignoredWords.test(line)) {
+      const amount = parseMoney(line);
+
+      if (amount !== null) {
+        return amount;
+      }
+
+      const nextAmount = parseMoney(lines[index + 1]);
+
+      if (nextAmount !== null) {
+        return nextAmount;
+      }
+    }
+  }
+
+  const amounts = lines
+    .map(parseMoney)
+    .filter((amount) => amount !== null && amount > 0);
+
+  return amounts.length ? Math.max(...amounts) : null;
+}
+
+function isAmountOnly(line) {
+  return /^[^\d-]*-?\d[\d,]*(?:\.\d{2})$/.test(String(line || "").trim());
+}
+
+function cleanProductName(line) {
+  return String(line || "")
+    .replace(/[$€£฿]\s*$/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+function extractProducts(lines, skipWords) {
+  const products = [];
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    const sameLineMatch = line.match(/^(.+?)\s+([$€£฿]?\s*\d[\d,]*\.\d{2})$/);
+
+    if (sameLineMatch && !skipWords.test(line)) {
+      const name = cleanProductName(sameLineMatch[1]);
+      const amount = parseMoney(sameLineMatch[2]);
+
+      if (name.length >= 2 && amount !== null) {
+        products.push({ name, total: amount });
+      }
+
+      continue;
+    }
+
+    const nextLine = lines[index + 1];
+
+    if (
+      nextLine &&
+      isAmountOnly(nextLine) &&
+      !isAmountOnly(line) &&
+      !skipWords.test(line)
+    ) {
+      const name = cleanProductName(line);
+      const amount = parseMoney(nextLine);
+
+      if (name.length >= 2 && amount !== null) {
+        products.push({ name, total: amount });
+      }
+
+      index += 1;
+    }
+  }
+
+  return products.slice(0, 30);
+}
+
+function getLineItemCandidates(lines) {
+  const totalIndex = lines.findIndex((line) => /^total\b/i.test(line));
+  const dateIndex = lines.findIndex((line) =>
+    /\bdate\b|\d{1,2}[-/]\d{1,2}[-/]\d{2,4}/i.test(line)
+  );
+  const tableIndex = lines.findIndex((line) => /\btable\b|\bcovers?\b/i.test(line));
+  const startIndex = tableIndex >= 0 ? tableIndex + 1 : dateIndex >= 0 ? dateIndex + 1 : 0;
+  const endIndex = totalIndex >= 0 ? totalIndex : lines.length;
+
+  return lines.slice(startIndex, endIndex);
+}
+
+function parseReceiptText(rawText) {
+  const text = normalizeOcrText(rawText);
+  const lines = text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const skipWords = /address|tel|date|receipt|table|covers?|total|subtotal|sub\s*total|tax|vat|change|cash|payment|paid|balance|thank|phone|email|reg|master/i;
+  const total = findTotal(lines);
+  let products = extractProducts(getLineItemCandidates(lines), skipWords);
+
+  if (!products.length) {
+    products = extractProducts(lines, skipWords);
+  }
+
+  return {
+    products,
+    total,
+    status: "Paid",
+    dueDate: null,
+    paymentType: null,
+    rawText: text,
+  };
+}
+
+function buildLocalSheetPreview(receipt) {
+  const products = receipt.products.length
+    ? receipt.products
+    : [{ name: "", total: receipt.total }];
+  const total =
+    receipt.total ??
+    Number(products.reduce((sum, product) => {
+      const price = Number(product.total);
+      return Number.isFinite(price) ? sum + price : sum;
+    }, 0).toFixed(2));
+  const rows = products.map((product) => [
+    "Created when submitted",
+    product.name,
+    product.total ?? receipt.total ?? "",
+    product.status ?? receipt.status ?? "",
+    (product.status ?? receipt.status) === "Unpaid"
+      ? product.dueDate ?? receipt.dueDate ?? ""
+      : "",
+    product.paymentType ?? receipt.paymentType ?? "",
+  ]);
+
+  return {
+    headers: ["Date", "Product", "Price", "Status", "Due Date", "Payment_Type"],
+    rows,
+    total,
+  };
+}
+
+function renderOcrResult(receipt, sheetPreview) {
+  renderSheetPreview(sheetPreview);
+  resultOutput.insertAdjacentHTML(
+    "beforeend",
+    `
+      <details class="ocr-raw">
+        <summary>Raw OCR text</summary>
+        <pre>${escapeHtml(receipt.rawText || "")}</pre>
+      </details>
+    `
+  );
+}
+
+async function getOcrWorker() {
+  if (ocrWorker) {
+    return ocrWorker;
+  }
+
+  if (!window.Tesseract?.createWorker) {
+    throw new Error("Tesseract.js is not loaded.");
+  }
+
+  ocrWorker = await window.Tesseract.createWorker("eng", 1, {
+    workerPath: "/vendor/tesseract/worker.min.js",
+    corePath: "/vendor/tesseract-core",
+    langPath: "https://tessdata.projectnaptha.com/4.0.0",
+    logger: (message) => {
+      if (message.status === "recognizing text") {
+        statusText.textContent = `Reading receipt ${Math.round(
+          (message.progress || 0) * 100
+        )}%`;
+      } else if (message.status) {
+        statusText.textContent = message.status;
+      }
+    },
+  });
+
+  await ocrWorker.setParameters({
+    preserve_interword_spaces: "1",
+    user_defined_dpi: "300",
+  });
+
+  return ocrWorker;
 }
 
 async function startCamera() {
@@ -216,50 +608,69 @@ function captureImage() {
 }
 
 async function analyzeReceipt() {
-  if (!healthState.geminiConfigured) {
-    statusText.textContent = "Gemini API key is missing";
-    resultOutput.textContent =
-      "Add GEMINI_API_KEY=... to the .env file, then restart the server.";
-    return;
-  }
-
   if (!currentFile) {
     statusText.textContent = "Choose an image first";
     return;
   }
 
   setBusyState(true);
-  statusText.textContent = "Uploading image for analysis";
-  resultOutput.textContent = "Processing...";
+  statusText.textContent = "Preparing OCR";
+  resultOutput.textContent = "Reading text from the image...";
   submitButton.classList.add("hidden");
+  setConfirmVisible(false);
   analyzedReceipt = null;
-
-  const formData = new FormData();
-  formData.append("receipt", currentFile);
+  draftReceipt = null;
+  isEditingReceipt = false;
 
   try {
-    const response = await fetch("/api/receipts/analyze", {
+    const formData = new FormData();
+    formData.append("receipt", currentFile);
+    statusText.textContent = "Reading with PaddleOCR";
+
+    const response = await fetch("/api/receipts/ocr", {
       method: "POST",
       body: formData,
     });
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.error || "Unable to analyze the receipt.");
+      throw new Error(data.error || "PaddleOCR is not available.");
     }
 
     analyzedReceipt = data.receipt;
-    statusText.textContent = "Review before submitting";
-    renderSheetPreview(data.sheetPreview || []);
+    statusText.textContent = "Review or edit before submitting";
+    renderOcrResult(
+      { ...data.receipt, rawText: data.rawText || "" },
+      data.sheetPreview || buildLocalSheetPreview(data.receipt)
+    );
+    setEditButtonMode("edit");
     submitButton.classList.toggle("hidden", !healthState.googleSheetsConfigured);
   } catch (error) {
-    statusText.textContent = "Something went wrong";
-    resultOutput.textContent =
-      error instanceof Error ? error.message : "Unknown error";
+    await analyzeReceiptWithTesseract(error);
   } finally {
     setBusyState(false);
     refreshReadyState();
   }
+}
+
+async function analyzeReceiptWithTesseract(paddleError) {
+  const worker = await getOcrWorker();
+  const { data } = await worker.recognize(currentFile);
+  const receipt = parseReceiptText(data.text);
+  const { rawText, ...receiptForSubmit } = receipt;
+  const sheetPreview = buildLocalSheetPreview(receiptForSubmit);
+
+  analyzedReceipt = receiptForSubmit;
+  statusText.textContent = "Review or edit before submitting";
+  renderOcrResult(receipt, sheetPreview);
+  setEditButtonMode("edit");
+  submitButton.classList.toggle("hidden", !healthState.googleSheetsConfigured);
+  resultOutput.insertAdjacentHTML(
+    "afterbegin",
+    `<div class="preview-error">PaddleOCR unavailable, so this result used browser OCR. ${
+      paddleError instanceof Error ? escapeHtml(paddleError.message) : ""
+    }</div>`
+  );
 }
 
 async function submitReceipt() {
@@ -323,6 +734,7 @@ startCameraButton.addEventListener("click", async () => {
 
 captureButton.addEventListener("click", captureImage);
 analyzeButton.addEventListener("click", analyzeReceipt);
+confirmEditButton.addEventListener("click", enterEditMode);
 submitButton.addEventListener("click", submitReceipt);
 
 window.addEventListener("beforeunload", stopCamera);
