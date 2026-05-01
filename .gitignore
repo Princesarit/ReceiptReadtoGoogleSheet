@@ -1,3 +1,4 @@
 node_modules
 .env
 .paddle-cache
+__pycache__
