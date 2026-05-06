@@ -21,7 +21,7 @@ export function renderReceiptPage(user = {}) {
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/assets/styles.css" />
+    <link rel="stylesheet" href="/assets/styles.css?v=block-parser-2" />
   </head>
   <body class="app-body">
     <main class="app-shell">
@@ -102,8 +102,7 @@ export function renderReceiptPage(user = {}) {
         </article>
       </section>
     </main>
-    <script src="/vendor/tesseract/tesseract.min.js"></script>
-    <script type="module" src="/assets/upload.js?v=currency-price-1"></script>
+    <script type="module" src="/assets/upload.js?v=block-parser-2"></script>
   </body>
 </html>`;
 }

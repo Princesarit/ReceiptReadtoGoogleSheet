@@ -8,7 +8,7 @@ def emit(payload):
 
 
 def collect_text_from_old_result(result):
-    lines = []
+    entries = []
 
     for page in result or []:
         for item in page or []:
@@ -19,13 +19,53 @@ def collect_text_from_old_result(result):
             if isinstance(text_score, (list, tuple)) and text_score:
                 text = text_score[0]
                 if text:
-                    lines.append(str(text))
+                    entries.append({
+                        "text": str(text),
+                        "box": normalize_box(item[0]),
+                    })
 
-    return lines
+    return entries
+
+
+def normalize_box(box):
+    if box is None:
+        return None
+
+    try:
+        flat_box = [float(value) for value in box]
+        if len(flat_box) == 4:
+            x1, y1, x2, y2 = flat_box
+            return [float(x1), float(y1), float(x2), float(y2)]
+    except Exception:
+        pass
+
+    try:
+        points = []
+        for point in box:
+            if len(point) >= 2:
+                points.append((float(point[0]), float(point[1])))
+
+        if not points:
+            return None
+
+        xs = [point[0] for point in points]
+        ys = [point[1] for point in points]
+        return [min(xs), min(ys), max(xs), max(ys)]
+    except Exception:
+        return None
+
+
+def first_present(data, names):
+    for name in names:
+        value = data.get(name)
+        if value is not None:
+            return value
+
+    return []
 
 
 def collect_text_from_new_result(result):
-    lines = []
+    entries = []
 
     for item in result or []:
         data = getattr(item, "json", None)
@@ -43,9 +83,19 @@ def collect_text_from_new_result(result):
             data = data["res"]
 
         rec_texts = data.get("rec_texts") or data.get("texts") or []
-        lines.extend(str(text) for text in rec_texts if text)
+        boxes = first_present(data, ["rec_boxes", "rec_polys", "dt_polys", "boxes"])
 
-    return lines
+        for index, text in enumerate(rec_texts):
+            if not text:
+                continue
+
+            box = boxes[index] if index < len(boxes) else None
+            entries.append({
+                "text": str(text),
+                "box": normalize_box(box),
+            })
+
+    return entries
 
 
 def main():
@@ -80,17 +130,20 @@ def main():
                 use_textline_orientation=False,
             )
             result = ocr.predict(str(image_path))
-            lines = collect_text_from_new_result(result)
+            entries = collect_text_from_new_result(result)
         except TypeError:
             ocr = PaddleOCR(lang="en", use_angle_cls=True, show_log=False)
             result = ocr.ocr(str(image_path), cls=True)
-            lines = collect_text_from_old_result(result)
+            entries = collect_text_from_old_result(result)
+
+        lines = [entry["text"] for entry in entries]
 
         emit({
             "ok": True,
             "engine": "paddleocr",
             "text": "\n".join(lines),
             "lines": lines,
+            "entries": entries,
         })
         return 0
     except Exception as error:

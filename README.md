@@ -1,6 +1,6 @@
 # Receipt Prototype
 
-Express app for uploading or photographing receipt images, extracting receipt data with OCR, and appending the result to Google Sheets.
+Express app for uploading or photographing receipt images, extracting receipt data with PaddleOCR, and appending the result to Google Sheets.
 
 ## Project structure
 
@@ -16,6 +16,7 @@ Express app for uploading or photographing receipt images, extracting receipt da
    - `PADDLE_OCR_PYTHON` (optional, defaults to `python`)
    - `PADDLE_OCR_CACHE_DIR` (optional, defaults to `.paddle-cache`)
    - `PADDLE_OCR_TIMEOUT_MS` (optional, defaults to `120000`)
+   - `RECEIPT_UPLOAD_MAX_MB` (optional, defaults to `25`)
    - `GEMINI_API_KEY` (optional legacy analyzer)
    - `GEMINI_MODEL` (optional, defaults to `gemini-2.5-flash`)
    - `GEMINI_MAX_RETRIES` (optional, defaults to `3`)
@@ -47,12 +48,13 @@ python -m pip install paddlepaddle==3.2.0 -i https://www.paddlepaddle.org.cn/pac
 python -m pip install paddleocr
 ```
 
-If PaddleOCR is not installed, the upload page falls back to browser OCR with Tesseract.js.
+PaddleOCR is required for receipt analysis. The upload page does not fall back to browser OCR.
 
 ## What gets extracted
 
 - Product names as separate rows
-- Product or receipt total
+- Quantity when visible
+- Product line total price
 - Status as `Paid` or `Unpaid`
 - Due Date when the receipt is unpaid
 - Payment_Type as `Cash`, `Credit Card`, or `Online Banking`
@@ -61,9 +63,10 @@ The `EXPENSES` tab uses these columns:
 
 - `Date`
 - `Product`
+- `Qty`
 - `Price`
 - `Status`
 - `Due Date`
 - `Payment_Type`
 
-Each submitted receipt also writes a summary label `Total` in column G and the receipt total in column H on the last product row.
+Each submitted receipt also writes a summary label `Total` in column H and the receipt total in column I on the last product row.

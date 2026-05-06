@@ -21,11 +21,40 @@ let cameraStream = null;
 let analyzedReceipt = null;
 let draftReceipt = null;
 let isEditingReceipt = false;
-let ocrWorker = null;
 let healthState = {
   googleSheetsConfigured: false,
   loaded: false,
 };
+
+function createHttpError(message, status) {
+  const error = new Error(message);
+  error.status = status;
+  return error;
+}
+
+async function readJsonResponse(response, fallbackMessage) {
+  const text = await response.text();
+
+  if (!text) {
+    if (response.ok) {
+      return {};
+    }
+
+    throw createHttpError(fallbackMessage, response.status);
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    const contentType = response.headers.get("content-type") || "";
+    const isHtml = contentType.includes("text/html") || text.trim().startsWith("<");
+    const message = isHtml
+      ? "The PaddleOCR API returned an HTML page instead of JSON. Restart the server, then sign in again if needed."
+      : fallbackMessage;
+
+    throw createHttpError(message, response.status);
+  }
+}
 
 function refreshReadyState() {
   if (!healthState.loaded) {
@@ -51,7 +80,7 @@ function refreshReadyState() {
 async function loadHealthStatus() {
   try {
     const response = await fetch("/api/health");
-    const data = await response.json();
+    const data = await readJsonResponse(response, "Unable to check system status.");
 
     healthState = {
       googleSheetsConfigured: Boolean(data.googleSheetsConfigured),
@@ -60,7 +89,7 @@ async function loadHealthStatus() {
 
     if (!healthState.googleSheetsConfigured) {
       resultOutput.textContent =
-        "OCR is ready. Google Sheets settings are missing in .env, so results will stay on this page.";
+        "PaddleOCR is ready. Google Sheets settings are missing in .env, so results will stay on this page.";
     } else {
       resultOutput.textContent = "No receipt has been analyzed yet.";
     }
@@ -186,14 +215,15 @@ function renderEditableReceipt(receipt) {
   draftReceipt = {
     products: (receipt.products || []).map((product) => ({
       ...product,
+      qty: product.qty || "1",
       status: product.status ?? receipt.status ?? "Paid",
       dueDate: product.dueDate ?? receipt.dueDate ?? null,
-      paymentType: product.paymentType ?? receipt.paymentType ?? null,
+      paymentType: product.paymentType ?? receipt.paymentType ?? "Cash",
     })),
     total: receipt.total,
     status: receipt.status || "Paid",
     dueDate: receipt.dueDate || null,
-    paymentType: receipt.paymentType || null,
+    paymentType: receipt.paymentType || "Cash",
   };
   analyzedReceipt = null;
   setEditButtonMode("confirm");
@@ -202,7 +232,7 @@ function renderEditableReceipt(receipt) {
 
   const rows = draftReceipt.products.length
     ? draftReceipt.products
-    : [{ name: "", total: draftReceipt.total }];
+    : [{ name: "", qty: "1", total: draftReceipt.total }];
   const bodyRows = rows
     .map(
       (product, index) => `
@@ -210,6 +240,11 @@ function renderEditableReceipt(receipt) {
           <td>
             <input class="table-input product-input" data-field="name" value="${escapeHtml(
               product.name
+            )}" />
+          </td>
+          <td>
+            <input class="table-input qty-input" data-field="qty" value="${escapeHtml(
+              product.qty || ""
             )}" />
           </td>
           <td>
@@ -247,6 +282,7 @@ function renderEditableReceipt(receipt) {
         <thead>
           <tr>
             <th>Product</th>
+            <th>Qty</th>
             <th>Price</th>
             <th>Status</th>
             <th>Due Date</th>
@@ -323,6 +359,7 @@ function confirmEdits() {
     products: draftReceipt.products
       .map((product) => ({
         name: String(product.name || "").trim(),
+        qty: String(product.qty || "1").trim() || "1",
         total: product.total ?? null,
         status: product.status || "Paid",
         dueDate: product.status === "Unpaid" ? product.dueDate || null : null,
@@ -332,7 +369,7 @@ function confirmEdits() {
     total: draftReceipt.total,
     status: null,
     dueDate: null,
-    paymentType: null,
+    paymentType: "Cash",
   };
   draftReceipt = null;
   setEditButtonMode("edit");
@@ -341,13 +378,6 @@ function confirmEdits() {
   submitButton.classList.toggle("hidden", !healthState.googleSheetsConfigured);
 }
 
-function normalizeOcrText(text) {
-  return String(text || "")
-    .replace(/\r/g, "")
-    .replace(/[ \t]+/g, " ")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-}
 
 function parseMoney(value) {
   const matches = String(value || "").match(/-?\d[\d,]*(?:\.\d{1,2})?/g);
@@ -360,126 +390,11 @@ function parseMoney(value) {
   return Number.isFinite(amount) ? amount : null;
 }
 
-function findTotal(lines) {
-  const totalWords = /^(grand\s*)?total\b|^amount\s*due\b|^balance\b|^net\s*amount\b/i;
-  const ignoredWords = /subtotal|sub\s*total|tax|vat|change|cash/i;
-
-  for (let index = lines.length - 1; index >= 0; index -= 1) {
-    const line = lines[index];
-
-    if (totalWords.test(line) && !ignoredWords.test(line)) {
-      const amount = parseMoney(line);
-
-      if (amount !== null) {
-        return amount;
-      }
-
-      const nextAmount = parseMoney(lines[index + 1]);
-
-      if (nextAmount !== null) {
-        return nextAmount;
-      }
-    }
-  }
-
-  const amounts = lines
-    .map(parseMoney)
-    .filter((amount) => amount !== null && amount > 0);
-
-  return amounts.length ? Math.max(...amounts) : null;
-}
-
-function isAmountOnly(line) {
-  return /^[^\d-]*-?\d[\d,]*(?:\.\d{2})$/.test(String(line || "").trim());
-}
-
-function cleanProductName(line) {
-  return String(line || "")
-    .replace(/[$€£฿]\s*$/g, "")
-    .replace(/\s{2,}/g, " ")
-    .trim();
-}
-
-function extractProducts(lines, skipWords) {
-  const products = [];
-
-  for (let index = 0; index < lines.length; index += 1) {
-    const line = lines[index];
-    const sameLineMatch = line.match(/^(.+?)\s+([$€£฿]?\s*\d[\d,]*\.\d{2})$/);
-
-    if (sameLineMatch && !skipWords.test(line)) {
-      const name = cleanProductName(sameLineMatch[1]);
-      const amount = parseMoney(sameLineMatch[2]);
-
-      if (name.length >= 2 && amount !== null) {
-        products.push({ name, total: amount });
-      }
-
-      continue;
-    }
-
-    const nextLine = lines[index + 1];
-
-    if (
-      nextLine &&
-      isAmountOnly(nextLine) &&
-      !isAmountOnly(line) &&
-      !skipWords.test(line)
-    ) {
-      const name = cleanProductName(line);
-      const amount = parseMoney(nextLine);
-
-      if (name.length >= 2 && amount !== null) {
-        products.push({ name, total: amount });
-      }
-
-      index += 1;
-    }
-  }
-
-  return products.slice(0, 30);
-}
-
-function getLineItemCandidates(lines) {
-  const totalIndex = lines.findIndex((line) => /^total\b/i.test(line));
-  const dateIndex = lines.findIndex((line) =>
-    /\bdate\b|\d{1,2}[-/]\d{1,2}[-/]\d{2,4}/i.test(line)
-  );
-  const tableIndex = lines.findIndex((line) => /\btable\b|\bcovers?\b/i.test(line));
-  const startIndex = tableIndex >= 0 ? tableIndex + 1 : dateIndex >= 0 ? dateIndex + 1 : 0;
-  const endIndex = totalIndex >= 0 ? totalIndex : lines.length;
-
-  return lines.slice(startIndex, endIndex);
-}
-
-function parseReceiptText(rawText) {
-  const text = normalizeOcrText(rawText);
-  const lines = text
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean);
-  const skipWords = /address|tel|date|receipt|table|covers?|total|subtotal|sub\s*total|tax|vat|change|cash|payment|paid|balance|thank|phone|email|reg|master/i;
-  const total = findTotal(lines);
-  let products = extractProducts(getLineItemCandidates(lines), skipWords);
-
-  if (!products.length) {
-    products = extractProducts(lines, skipWords);
-  }
-
-  return {
-    products,
-    total,
-    status: "Paid",
-    dueDate: null,
-    paymentType: null,
-    rawText: text,
-  };
-}
 
 function buildLocalSheetPreview(receipt) {
   const products = receipt.products.length
     ? receipt.products
-    : [{ name: "", total: receipt.total }];
+    : [{ name: "", qty: "1", total: receipt.total }];
   const total =
     receipt.total ??
     Number(products.reduce((sum, product) => {
@@ -489,6 +404,7 @@ function buildLocalSheetPreview(receipt) {
   const rows = products.map((product) => [
     "Created when submitted",
     product.name,
+    product.qty || "1",
     product.total ?? receipt.total ?? "",
     product.status ?? receipt.status ?? "",
     (product.status ?? receipt.status) === "Unpaid"
@@ -498,7 +414,7 @@ function buildLocalSheetPreview(receipt) {
   ]);
 
   return {
-    headers: ["Date", "Product", "Price", "Status", "Due Date", "Payment_Type"],
+    headers: ["Date", "Product", "Qty", "Price", "Status", "Due Date", "Payment_Type"],
     rows,
     total,
   };
@@ -510,43 +426,11 @@ function renderOcrResult(receipt, sheetPreview) {
     "beforeend",
     `
       <details class="ocr-raw">
-        <summary>Raw OCR text</summary>
+        <summary>Raw PaddleOCR text</summary>
         <pre>${escapeHtml(receipt.rawText || "")}</pre>
       </details>
     `
   );
-}
-
-async function getOcrWorker() {
-  if (ocrWorker) {
-    return ocrWorker;
-  }
-
-  if (!window.Tesseract?.createWorker) {
-    throw new Error("Tesseract.js is not loaded.");
-  }
-
-  ocrWorker = await window.Tesseract.createWorker("eng", 1, {
-    workerPath: "/vendor/tesseract/worker.min.js",
-    corePath: "/vendor/tesseract-core",
-    langPath: "https://tessdata.projectnaptha.com/4.0.0",
-    logger: (message) => {
-      if (message.status === "recognizing text") {
-        statusText.textContent = `Reading receipt ${Math.round(
-          (message.progress || 0) * 100
-        )}%`;
-      } else if (message.status) {
-        statusText.textContent = message.status;
-      }
-    },
-  });
-
-  await ocrWorker.setParameters({
-    preserve_interword_spaces: "1",
-    user_defined_dpi: "300",
-  });
-
-  return ocrWorker;
 }
 
 async function startCamera() {
@@ -614,7 +498,7 @@ async function analyzeReceipt() {
   }
 
   setBusyState(true);
-  statusText.textContent = "Preparing OCR";
+  statusText.textContent = "Preparing PaddleOCR";
   resultOutput.textContent = "Reading text from the image...";
   submitButton.classList.add("hidden");
   setConfirmVisible(false);
@@ -631,10 +515,10 @@ async function analyzeReceipt() {
       method: "POST",
       body: formData,
     });
-    const data = await response.json();
+    const data = await readJsonResponse(response, "PaddleOCR is not available.");
 
     if (!response.ok) {
-      throw new Error(data.error || "PaddleOCR is not available.");
+      throw createHttpError(data.error || "PaddleOCR is not available.", response.status);
     }
 
     analyzedReceipt = data.receipt;
@@ -646,31 +530,24 @@ async function analyzeReceipt() {
     setEditButtonMode("edit");
     submitButton.classList.toggle("hidden", !healthState.googleSheetsConfigured);
   } catch (error) {
-    await analyzeReceiptWithTesseract(error);
+    if (error?.status === 401) {
+      statusText.textContent = "Sign-in expired";
+      resultOutput.innerHTML = `<div class="preview-error">${escapeHtml(
+        error.message
+      )}</div>`;
+      return;
+    }
+
+    statusText.textContent = "PaddleOCR failed";
+    resultOutput.innerHTML = `<div class="preview-error">${
+      error instanceof Error ? escapeHtml(error.message) : "PaddleOCR failed."
+    }</div>`;
   } finally {
     setBusyState(false);
-    refreshReadyState();
+    if (statusText.textContent !== "Sign-in expired") {
+      refreshReadyState();
+    }
   }
-}
-
-async function analyzeReceiptWithTesseract(paddleError) {
-  const worker = await getOcrWorker();
-  const { data } = await worker.recognize(currentFile);
-  const receipt = parseReceiptText(data.text);
-  const { rawText, ...receiptForSubmit } = receipt;
-  const sheetPreview = buildLocalSheetPreview(receiptForSubmit);
-
-  analyzedReceipt = receiptForSubmit;
-  statusText.textContent = "Review or edit before submitting";
-  renderOcrResult(receipt, sheetPreview);
-  setEditButtonMode("edit");
-  submitButton.classList.toggle("hidden", !healthState.googleSheetsConfigured);
-  resultOutput.insertAdjacentHTML(
-    "afterbegin",
-    `<div class="preview-error">PaddleOCR unavailable, so this result used browser OCR. ${
-      paddleError instanceof Error ? escapeHtml(paddleError.message) : ""
-    }</div>`
-  );
 }
 
 async function submitReceipt() {
@@ -688,10 +565,10 @@ async function submitReceipt() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ receipt: analyzedReceipt }),
     });
-    const data = await response.json();
+    const data = await readJsonResponse(response, "Unable to submit the receipt.");
 
     if (!response.ok) {
-      throw new Error(data.error || "Unable to submit the receipt.");
+      throw createHttpError(data.error || "Unable to submit the receipt.", response.status);
     }
 
     statusText.textContent = data.sheet?.skipped

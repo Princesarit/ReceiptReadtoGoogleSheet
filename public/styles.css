@@ -46,7 +46,7 @@ input {
 
 .landing-shell,
 .app-shell {
-  width: min(1120px, 100%);
+  width: min(1680px, 100%);
 }
 
 .app-shell {
@@ -233,7 +233,7 @@ p {
 
 .workspace {
   display: grid;
-  grid-template-columns: minmax(300px, 0.92fr) minmax(340px, 1.08fr);
+  grid-template-columns: minmax(360px, 0.65fr) minmax(760px, 1.35fr);
   gap: 22px;
   align-items: start;
 }
@@ -403,7 +403,7 @@ p {
 
 .preview-table {
   width: 100%;
-  min-width: 640px;
+  min-width: 820px;
   border-collapse: collapse;
   table-layout: auto;
   margin: 0;
@@ -568,7 +568,7 @@ p {
   display: none;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1180px) {
   .landing-body {
     padding: 20px;
   }

@@ -20,9 +20,10 @@ const projectRoot = path.resolve(__dirname, "..");
 const execFileAsync = promisify(execFile);
 
 const app = express();
+const RECEIPT_UPLOAD_MAX_MB = Number(process.env.RECEIPT_UPLOAD_MAX_MB || 25);
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 },
+  limits: { fileSize: RECEIPT_UPLOAD_MAX_MB * 1024 * 1024 },
 });
 
 const PORT = process.env.PORT || 3000;
@@ -45,6 +46,7 @@ const AUTH_MAX_AGE_SECONDS = 60 * 60 * 12;
 
 const productSchema = z.object({
   name: z.string(),
+  qty: z.string().nullable().optional(),
   total: z.number().nullable(),
   status: z.enum(["Paid", "Unpaid"]).nullable().optional(),
   dueDate: z.string().nullable().optional(),
@@ -64,6 +66,7 @@ const nullableNumberSchema = { type: Type.NUMBER, nullable: true };
 const expenseSheetHeaders = [
   "Date",
   "Product",
+  "Qty",
   "Price",
   "Status",
   "Due Date",
@@ -79,10 +82,11 @@ const expenseResponseSchema = {
         type: Type.OBJECT,
         properties: {
           name: { type: Type.STRING },
+          qty: nullableStringSchema,
           total: nullableNumberSchema,
         },
         required: ["name", "total"],
-        propertyOrdering: ["name", "total"],
+        propertyOrdering: ["name", "qty", "total"],
       },
     },
     total: nullableNumberSchema,
@@ -172,6 +176,7 @@ function getHealthStatus() {
     ok: true,
     geminiConfigured: Boolean(process.env.GEMINI_API_KEY),
     paddleOcrEnabled: true,
+    receiptUploadMaxMb: RECEIPT_UPLOAD_MAX_MB,
     googleSheetsConfigured: Boolean(
       process.env.GOOGLE_SHEETS_SPREADSHEET_ID &&
         process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL &&
@@ -267,7 +272,32 @@ function requireAuth(req, res, next) {
     return next();
   }
 
+  if (req.path.startsWith("/api/")) {
+    return res.status(401).json({ error: "Your sign-in expired. Please sign in again." });
+  }
+
   return res.redirect("/");
+}
+
+function uploadReceipt(req, res, next) {
+  upload.single("receipt")(req, res, (error) => {
+    if (!error) {
+      return next();
+    }
+
+    if (error instanceof multer.MulterError) {
+      const message =
+        error.code === "LIMIT_FILE_SIZE"
+          ? `Receipt image is too large. Upload an image under ${RECEIPT_UPLOAD_MAX_MB} MB.`
+          : error.message;
+
+      return res.status(400).json({ error: message });
+    }
+
+    return res.status(400).json({
+      error: error instanceof Error ? error.message : "Unable to read the uploaded file.",
+    });
+  });
 }
 
 function setAuthCookie(res, user) {
@@ -303,7 +333,7 @@ async function findUserByPass(pass) {
 }
 
 async function ensureSheetHeader(sheets, spreadsheetId, sheetName) {
-  const headerRange = `${sheetName}!A1:H1`;
+  const headerRange = `${sheetName}!A1:G1`;
   const existing = await sheets.spreadsheets.values.get({
     spreadsheetId,
     range: headerRange,
@@ -371,8 +401,8 @@ async function formatSubmittedRows(sheets, spreadsheetId, sheetName, rows, updat
           sheetId,
           startRowIndex: rowRange.startRow - 1,
           endRowIndex: rowRange.endRow,
-          startColumnIndex: 6,
-          endColumnIndex: 7,
+          startColumnIndex: 7,
+          endColumnIndex: 8,
         },
         cell: {
           userEnteredFormat: {
@@ -384,7 +414,7 @@ async function formatSubmittedRows(sheets, spreadsheetId, sheetName, rows, updat
       },
     },
   ];
-  const totalRowOffset = rows.findIndex((row) => row[6] === "Total");
+  const totalRowOffset = rows.findIndex((row) => row[7] === "Total");
 
   if (totalRowOffset >= 0) {
     const totalRowIndex = rowRange.startRow - 1 + totalRowOffset;
@@ -394,8 +424,8 @@ async function formatSubmittedRows(sheets, spreadsheetId, sheetName, rows, updat
           sheetId,
           startRowIndex: totalRowIndex,
           endRowIndex: totalRowIndex + 1,
-          startColumnIndex: 6,
-          endColumnIndex: 7,
+          startColumnIndex: 7,
+          endColumnIndex: 8,
         },
         cell: {
           userEnteredFormat: {
@@ -409,7 +439,7 @@ async function formatSubmittedRows(sheets, spreadsheetId, sheetName, rows, updat
   }
 
   rows.forEach((row, index) => {
-    if (String(row[3] || "").toLowerCase() !== "unpaid") {
+    if (String(row[4] || "").toLowerCase() !== "unpaid") {
       return;
     }
 
@@ -420,8 +450,8 @@ async function formatSubmittedRows(sheets, spreadsheetId, sheetName, rows, updat
           sheetId,
           startRowIndex: rowIndex,
           endRowIndex: rowIndex + 1,
-          startColumnIndex: 3,
-          endColumnIndex: 4,
+          startColumnIndex: 4,
+          endColumnIndex: 5,
         },
         cell: {
           userEnteredFormat: {
@@ -461,10 +491,13 @@ function formatSheetDate(date = new Date()) {
 
 function getExpenseProducts(expense) {
   if (expense.products.length) {
-    return expense.products;
+    return expense.products.map((product) => ({
+      ...product,
+      qty: product.qty || "1",
+    }));
   }
 
-  return [{ name: "", total: expense.total }];
+  return [{ name: "", qty: "1", total: expense.total }];
 }
 
 function getExpenseTotal(expense) {
@@ -484,12 +517,13 @@ function buildSheetRows(expense, submittedAt = formatSheetDate()) {
   const rows = getExpenseProducts(expense).map((product) => [
     submittedAt,
     product.name,
+    product.qty ?? "",
     product.total ?? expense.total ?? "",
     product.status ?? expense.status ?? "",
     (product.status ?? expense.status) === "Unpaid"
       ? product.dueDate ?? expense.dueDate ?? ""
       : "",
-    product.paymentType ?? expense.paymentType ?? "",
+    product.paymentType ?? expense.paymentType ?? "Cash",
     "",
     "",
   ]);
@@ -497,11 +531,11 @@ function buildSheetRows(expense, submittedAt = formatSheetDate()) {
 
   if (total !== null) {
     if (!rows.length) {
-      rows.push(["", "", "", "", "", "", "", ""]);
+      rows.push(["", "", "", "", "", "", "", "", ""]);
     }
 
-    rows[rows.length - 1][6] = "Total";
-    rows[rows.length - 1][7] = total;
+    rows[rows.length - 1][7] = "Total";
+    rows[rows.length - 1][8] = total;
   }
 
   return rows;
@@ -513,12 +547,13 @@ function buildSheetPreview(expense) {
     rows: getExpenseProducts(expense).map((product) => [
       "Created when submitted",
       product.name,
+      product.qty ?? "",
       product.total ?? expense.total ?? "",
       product.status ?? expense.status ?? "",
       (product.status ?? expense.status) === "Unpaid"
         ? product.dueDate ?? expense.dueDate ?? ""
         : "",
-      product.paymentType ?? expense.paymentType ?? "",
+      product.paymentType ?? expense.paymentType ?? "Cash",
     ]),
     total: getExpenseTotal(expense),
   };
@@ -536,6 +571,12 @@ function parseMoney(value) {
     .replace(/\.(?=.*\.)/g, "");
   const amount = Number(normalized);
   return Number.isFinite(amount) ? amount : null;
+}
+
+function getMoneyMatches(value) {
+  return Array.from(
+    String(value || "").matchAll(/[$€£฿]\s*-?\d[\d,]*(?:[.,]\d{1,2})?|-?\d[\d,]*[.,]\d{2}/g)
+  );
 }
 
 function normalizeOcrText(text) {
@@ -577,9 +618,613 @@ function isAmountOnly(line) {
 
 function cleanProductName(line) {
   return String(line || "")
+    .replace(/^[#^*\s]+/g, "")
+    .replace(/^[AH]{1,2}(?=Coca\b|Pocky\b|M&Ms\b)/i, "")
+    .replace(/[#^*]+/g, "")
     .replace(/[$€£฿]\s*$/g, "")
     .replace(/\s{2,}/g, " ")
     .trim();
+}
+
+function cleanLineItemName(line) {
+  return cleanProductName(line)
+    .replace(/\b\d+\s*@\s*[$€£฿]?\s*\d[\d,.]*/gi, "")
+    .replace(/\b[a-z]\s+(?=\d+\s*x)/gi, "")
+    .replace(/^\d+\s+(?=\d+\s*(?:pk|x))/i, "")
+    .replace(/\s+[({[]?P[)}\]]?\s*$/i, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+function shouldJoinPendingName(pendingName, name) {
+  if (!pendingName || !name) {
+    return false;
+  }
+
+  return (
+    /^[a-z]?\s*\d+\s*x/i.test(name) ||
+    /^\d+\s*(?:pk|x|ml|g|kg|l)\b/i.test(name) ||
+    /^\d+\s+\w+/i.test(name) ||
+    name.length < 12
+  );
+}
+
+function isPackageFragment(name) {
+  return /^[a-z]?\s*\d+\s*x/i.test(name) || /^\d+\s*(?:pk|x|ml|g|kg|l)\b/i.test(name);
+}
+
+function isSummaryLine(line) {
+  return /\bsubtotal\b|sub\s*total|^rounding\b|^total\b|^cash\b|^change\b|^gst\b|^tax\b|served\s+by|receipt\s+number|loyalty|member/i.test(
+    String(line || "")
+  );
+}
+
+function isQuantityLine(line) {
+  const value = String(line || "").trim();
+  return (
+    /^(?:qty\s*)?\d+\s*@\b/i.test(value) ||
+    /^qty\s+\d+$/i.test(value) ||
+    /^\d+\s+x\b/i.test(value) ||
+    /\beach\b/i.test(value) ||
+    /@/.test(value) ||
+    /^[\d\s@xX$€£฿.,-]+$/.test(value)
+  );
+}
+
+function parseQuantity(line) {
+  const value = String(line || "").trim();
+  const explicitMatch = value.match(/^qty\s+(\d+)$/i);
+  const explicitWithDetailMatch = value.match(/^qty\.?\s*(\d+)/i);
+  const unitMatch = value.match(/^(?:qty\s*)?(\d+)\s*(?:@|x\b)/i);
+  const compactUnitMatch = value.match(/^(\d)\d\s+\D?\d[\d,.]*/);
+  return explicitMatch?.[1] || explicitWithDetailMatch?.[1] || unitMatch?.[1] || compactUnitMatch?.[1] || null;
+}
+
+function isMetadataLine(line, name = "") {
+  const value = String(line || "").trim();
+  const cleanedName = cleanLineItemName(name);
+
+  return (
+    /\beach\b/i.test(value) ||
+    /@/.test(value) ||
+    /^qty\b/i.test(value) ||
+    cleanedName.toLowerCase() === "each" ||
+    /^\d+$/.test(cleanedName)
+  );
+}
+
+function hasMetadataTokens(line) {
+  const value = String(line || "").trim();
+  return /\beach\b/i.test(value) || /@/.test(value) || /^qty\b/i.test(value);
+}
+
+function isPriceOnlyLine(line) {
+  const value = String(line || "").trim();
+  return getMoneyMatches(value).length > 0 && /^[^\p{L}]*[$€£฿]?\s*-?\d[\d,.]*[^\p{L}]*$/u.test(value);
+}
+
+function getRowsLayout(rows) {
+  const items = rows.flatMap((row) => row.items || []);
+
+  if (!items.length) {
+    return { hasPositions: false, rightPriceStart: 0 };
+  }
+
+  const minX = Math.min(...items.map((item) => item.x1));
+  const maxX = Math.max(...items.map((item) => item.x2));
+  const span = Math.max(1, maxX - minX);
+  const roughPriceStart = minX + span * 0.62;
+  const rightMoneyItems = items
+    .filter((item) => parseMoney(item.text) !== null)
+    .filter((item) => item.x1 >= roughPriceStart)
+    .sort((left, right) => left.x1 - right.x1);
+
+  if (rightMoneyItems.length) {
+    const medianIndex = Math.floor(rightMoneyItems.length / 2);
+    const medianPriceX = rightMoneyItems[medianIndex].x1;
+
+    return {
+      hasPositions: true,
+      rightPriceStart: Math.max(roughPriceStart, medianPriceX - span * 0.12),
+    };
+  }
+
+  return {
+    hasPositions: true,
+    rightPriceStart: minX + span * 0.72,
+  };
+}
+
+function getRightAlignedMoney(row, layout) {
+  const items = row.items || [];
+
+  if (layout.hasPositions && items.length) {
+    const candidates = items
+      .map((item, index) => ({
+        item,
+        index,
+        amount: parseMoney(item.text),
+      }))
+      .filter((candidate) => candidate.amount !== null)
+      .filter((candidate) => candidate.item.x1 >= layout.rightPriceStart)
+      .sort((left, right) => right.item.x1 - left.item.x1);
+    const [candidate] = candidates;
+
+    if (!candidate) {
+      return null;
+    }
+
+    const nameText = items
+      .slice(0, candidate.index)
+      .map((item) => item.text)
+      .join(" ");
+
+    if (hasMetadataTokens(nameText)) {
+      return {
+        amount: candidate.amount,
+        nameText,
+        isMetadataPriced: true,
+        isPriceOnly: false,
+      };
+    }
+
+    return {
+      amount: candidate.amount,
+      nameText,
+      isMetadataPriced: false,
+      isPriceOnly: items.length === 1,
+    };
+  }
+
+  const moneyMatches = getMoneyMatches(row.text);
+  const amountMatch = moneyMatches[moneyMatches.length - 1];
+
+  if (!amountMatch) {
+    return null;
+  }
+
+  return {
+    amount: parseMoney(amountMatch[0]),
+    nameText: String(row.text || "").slice(0, amountMatch.index),
+    isMetadataPriced: hasMetadataTokens(String(row.text || "").slice(0, amountMatch.index)),
+    isPriceOnly: isPriceOnlyLine(row.text),
+  };
+}
+
+function getRowProductText(row, priceInfo = null) {
+  if (priceInfo) {
+    return priceInfo.nameText || "";
+  }
+
+  return row.text || "";
+}
+
+function joinProductParts(parts) {
+  return cleanLineItemName(parts.filter(Boolean).join(" "));
+}
+
+function cleanContinuationPart(line) {
+  return cleanLineItemName(line)
+    .replace(/^[a-z]\s+(?=[A-Z0-9])/g, "")
+    .replace(/^0\s+(?=[A-Z])/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+function createProduct(name, qty, total) {
+  const cleanName = cleanLineItemName(name);
+
+  if (
+    cleanName.length < 2 ||
+    total === null ||
+    total === undefined ||
+    isSummaryLine(cleanName) ||
+    isQuantityLine(cleanName) ||
+    isMetadataLine("", cleanName) ||
+    isPackageFragment(cleanName)
+  ) {
+    return null;
+  }
+
+  return {
+    name: cleanName,
+    qty: qty || "1",
+    total,
+  };
+}
+
+function normalizeParsedProducts(products, receiptTotal) {
+  const productCount = products.length;
+
+  return products
+    .map((product) => ({
+      ...product,
+      name: cleanLineItemName(product.name),
+      qty: product.qty || "1",
+    }))
+    .filter((product) => product.name.length >= 2)
+    .filter((product) => !isSummaryLine(product.name))
+    .filter((product) => !isQuantityLine(product.name))
+    .filter((product) => !isMetadataLine("", product.name))
+    .filter((product) => {
+      if (receiptTotal === null || receiptTotal === undefined) {
+        return true;
+      }
+
+      const amount = Number(product.total);
+      return !Number.isFinite(amount) || amount < receiptTotal || productCount === 1;
+    });
+}
+
+function getOcrRows(entries) {
+  const positioned = (entries || [])
+    .filter((entry) => entry?.text && Array.isArray(entry.box) && entry.box.length === 4)
+    .map((entry) => {
+      const [x1, y1, x2, y2] = entry.box.map(Number);
+      return {
+        text: String(entry.text).trim(),
+        x1,
+        x2,
+        y1,
+        y2,
+        centerY: (y1 + y2) / 2,
+        height: Math.max(1, y2 - y1),
+      };
+    })
+    .filter((entry) =>
+      [entry.x1, entry.x2, entry.y1, entry.y2].every((value) => Number.isFinite(value))
+    )
+    .sort((left, right) => left.centerY - right.centerY || left.x1 - right.x1);
+
+  if (!positioned.length) {
+    return [];
+  }
+
+  const rows = [];
+
+  for (const entry of positioned) {
+    const lastRow = rows[rows.length - 1];
+    const tolerance = Math.max(3, entry.height * 0.35);
+
+    if (!lastRow || Math.abs(lastRow.centerY - entry.centerY) > tolerance) {
+      rows.push({
+        centerY: entry.centerY,
+        items: [entry],
+      });
+      continue;
+    }
+
+    lastRow.items.push(entry);
+    lastRow.centerY =
+      lastRow.items.reduce((sum, item) => sum + item.centerY, 0) / lastRow.items.length;
+  }
+
+  return rows.map((row) => {
+    const items = row.items.sort((left, right) => left.x1 - right.x1);
+    return {
+      text: items.map((item) => item.text).join(" ").replace(/\s{2,}/g, " ").trim(),
+      items,
+    };
+  });
+}
+
+function getCandidateRows(lines, entries) {
+  const positionedRows = getOcrRows(entries);
+  const rows = positionedRows.length
+    ? positionedRows
+    : lines.map((line) => ({ text: line, items: [] }));
+  const dateIndex = rows.findIndex((row) =>
+    /\d{1,2}[-/]\d{1,2}[-/]\d{2,4}|\bdate\b/i.test(row.text)
+  );
+  const startIndex = dateIndex >= 0 ? dateIndex + 1 : 0;
+  const summaryIndex = rows.findIndex(
+    (row, index) => index >= startIndex && isSummaryLine(row.text)
+  );
+  const endIndex = summaryIndex >= 0 ? summaryIndex : rows.length;
+
+  return rows.slice(startIndex, endIndex);
+}
+
+function extractProductsFromRows(rows, skipWords) {
+  const products = [];
+  let pendingNameParts = [];
+  let pendingQty = null;
+  let lastProduct = null;
+  const layout = getRowsLayout(rows);
+
+  for (const row of rows) {
+    const line = String(row.text || "").trim();
+
+    if (!line || skipWords.test(line) || isSummaryLine(line)) {
+      continue;
+    }
+
+    const priceInfo = getRightAlignedMoney(row, layout);
+    const amount = priceInfo?.amount ?? null;
+    const qty = parseQuantity(line);
+    const leftText = cleanLineItemName(getRowProductText(row, priceInfo));
+    const metadataLine =
+      isQuantityLine(line) ||
+      hasMetadataTokens(line) ||
+      priceInfo?.isMetadataPriced ||
+      isMetadataLine(line, leftText);
+
+    if (amount === null && qty && metadataLine) {
+      pendingQty = qty;
+
+      if (!pendingNameParts.length && lastProduct) {
+        lastProduct.qty = qty;
+        pendingQty = null;
+      }
+
+      continue;
+    }
+
+    if (amount === null) {
+      if (!metadataLine) {
+        const name = cleanLineItemName(line);
+
+        if (name) {
+          pendingNameParts.push(name);
+        }
+      }
+
+      continue;
+    }
+
+    const nameParts = [...pendingNameParts];
+
+    if (leftText && (!metadataLine || isPackageFragment(leftText))) {
+      nameParts.push(leftText);
+    }
+
+    const product = createProduct(joinProductParts(nameParts), qty || pendingQty, amount);
+
+    if (product) {
+      products.push(product);
+      lastProduct = product;
+      pendingNameParts = [];
+      pendingQty = null;
+      continue;
+    }
+
+    if (qty && lastProduct && metadataLine) {
+      lastProduct.qty = qty;
+    }
+
+    if (!product && leftText && !metadataLine && !isPackageFragment(leftText)) {
+      pendingNameParts = [leftText];
+    } else {
+      pendingNameParts = [];
+    }
+
+    pendingQty = null;
+  }
+
+  return products.slice(0, 30);
+}
+
+function getCandidateTextLines(lines) {
+  const dateIndex = lines.findIndex((line) =>
+    /\d{1,2}[-/]\d{1,2}[-/]\d{2,4}|\bdate\b/i.test(line)
+  );
+  const startIndex = dateIndex >= 0 ? dateIndex + 1 : 0;
+  const summaryIndex = lines.findIndex(
+    (line, index) => index >= startIndex && isSummaryLine(line)
+  );
+  const endIndex = summaryIndex >= 0 ? summaryIndex : lines.length;
+  return lines.slice(startIndex, endIndex);
+}
+
+function updateProductQuantityFromUnitPrice(product, qtyCandidate, unitPrice) {
+  if (!product || !Number.isFinite(unitPrice)) {
+    return;
+  }
+
+  const total = Number(product.total);
+
+  if (!Number.isFinite(total) || unitPrice <= 0 || total <= unitPrice) {
+    return;
+  }
+
+  const inferredQty = Math.round(total / unitPrice);
+
+  if (inferredQty >= 2 && Math.abs(inferredQty * unitPrice - total) < 0.06) {
+    product.qty = String(inferredQty);
+    return;
+  }
+
+  if (qtyCandidate && Number(qtyCandidate) >= 2 && Number(qtyCandidate) <= 99) {
+    product.qty = String(qtyCandidate);
+  }
+}
+
+function shouldIgnoreRawTextLine(line, skipWords) {
+  const value = String(line || "").trim();
+
+  return (
+    !value ||
+    skipWords.test(value) ||
+    isSummaryLine(value) ||
+    /^[$โฌยฃเธฟ]?$/.test(value)
+  );
+}
+
+function extractProductsFromTextBlocks(lines, skipWords) {
+  const products = [];
+  let pendingNameParts = [];
+  let pendingQty = null;
+  let pendingUnitPrice = null;
+  let expectingQty = false;
+  let lastProduct = null;
+
+  for (const line of lines) {
+    const value = String(line || "").trim();
+
+    if (shouldIgnoreRawTextLine(value, skipWords)) {
+      continue;
+    }
+
+    const amountMatches = getMoneyMatches(value);
+    const lastAmountMatch = amountMatches[amountMatches.length - 1];
+    const amount = lastAmountMatch ? parseMoney(lastAmountMatch[0]) : null;
+    const amountOnly = amount !== null && isPriceOnlyLine(value);
+    const qty = parseQuantity(value);
+    const hasMetadata = hasMetadataTokens(value) || /^qty\b/i.test(value);
+
+    if (/^qty\b/i.test(value)) {
+      expectingQty = true;
+    }
+
+    if (qty && hasMetadata) {
+      pendingQty = qty;
+    }
+
+    if (expectingQty && /^\d{1,2}$/.test(value)) {
+      pendingQty = value.length === 2 && value.endsWith("0") ? value.slice(0, 1) : value;
+      expectingQty = false;
+      continue;
+    }
+
+    if (amount !== null && (hasMetadata || expectingQty) && lastProduct && !pendingNameParts.length) {
+      updateProductQuantityFromUnitPrice(lastProduct, pendingQty, amount);
+      pendingQty = null;
+      pendingUnitPrice = null;
+      expectingQty = false;
+      continue;
+    }
+
+    if (amount !== null && hasMetadata && pendingNameParts.length) {
+      pendingUnitPrice = amount;
+      expectingQty = false;
+      continue;
+    }
+
+    if (amountOnly) {
+      if (pendingNameParts.length && pendingQty && pendingUnitPrice === null) {
+        pendingUnitPrice = amount;
+        expectingQty = false;
+        continue;
+      }
+
+      if (pendingNameParts.length) {
+        const product = createProduct(joinProductParts(pendingNameParts), pendingQty, amount);
+
+        if (product) {
+          products.push(product);
+          lastProduct = product;
+        }
+
+        pendingNameParts = [];
+        pendingQty = null;
+        pendingUnitPrice = null;
+      } else if (lastProduct && pendingQty) {
+        updateProductQuantityFromUnitPrice(lastProduct, pendingQty, amount);
+        pendingQty = null;
+        pendingUnitPrice = null;
+      }
+
+      expectingQty = false;
+      continue;
+    }
+
+    if (amount !== null) {
+      const leftText = value.slice(0, lastAmountMatch.index);
+
+      if (!hasMetadata) {
+        const product = createProduct(joinProductParts([...pendingNameParts, leftText]), pendingQty, amount);
+
+        if (product) {
+          products.push(product);
+          lastProduct = product;
+          pendingNameParts = [];
+          pendingQty = null;
+          pendingUnitPrice = null;
+        }
+      }
+
+      expectingQty = false;
+      continue;
+    }
+
+    if (hasMetadata || value.toLowerCase() === "each") {
+      continue;
+    }
+
+    const part = cleanContinuationPart(value);
+
+    if (part && !isQuantityLine(part) && !isMetadataLine("", part)) {
+      if (
+        pendingNameParts.length &&
+        /^(?:Golden Circle|Coca Cola|WW |Essentials |Pocky |Haribo |Ingham's)/i.test(part)
+      ) {
+        pendingNameParts = [];
+        pendingQty = null;
+        pendingUnitPrice = null;
+      }
+
+      pendingNameParts.push(part);
+    }
+  }
+
+  return products.slice(0, 30);
+}
+
+function productQualityScore(product) {
+  const name = String(product?.name || "");
+  let score = name.length;
+
+  if (/\b(Coca|Cola|Schweppes|Pocky|Golden|Circle|Farmers|Squid|Chicken)\b/i.test(name)) {
+    score += 20;
+  }
+
+  if (isPackageFragment(name) || /^\d/.test(name)) {
+    score -= 40;
+  }
+
+  if (/\b[a-z0]\s+(?=[A-Z0-9])/i.test(name)) {
+    score -= 35;
+  }
+
+  return score;
+}
+
+function noisyContinuationCount(products) {
+  return products.filter((product) => /\b[a-z0]\s+(?=[A-Z0-9])/i.test(product.name)).length;
+}
+
+function chooseBestParsedProducts(rowProducts, textProducts) {
+  if (!textProducts.length) {
+    return rowProducts;
+  }
+
+  if (!rowProducts.length) {
+    return textProducts;
+  }
+
+  const rowFragmentCount = rowProducts.filter((product) => isPackageFragment(product.name)).length;
+  const textFragmentCount = textProducts.filter((product) => isPackageFragment(product.name)).length;
+
+  if (rowFragmentCount > textFragmentCount) {
+    return textProducts;
+  }
+
+  if (noisyContinuationCount(rowProducts) > noisyContinuationCount(textProducts)) {
+    return textProducts;
+  }
+
+  if (textProducts.length < rowProducts.length && rowFragmentCount <= textFragmentCount) {
+    return rowProducts;
+  }
+
+  const rowScore = rowProducts.reduce((sum, product) => sum + productQualityScore(product), 0);
+  const textScore = textProducts.reduce((sum, product) => sum + productQualityScore(product), 0);
+
+  if (textProducts.length >= rowProducts.length * 0.75 && textScore >= rowScore) {
+    return textProducts;
+  }
+
+  return rowProducts;
 }
 
 function extractProducts(lines, skipWords) {
@@ -636,30 +1281,37 @@ function getLineItemCandidates(lines) {
   return lines.slice(startIndex, endIndex);
 }
 
-function parseOcrExpense(rawText) {
+function parseOcrExpense(rawText, entries = []) {
   const text = normalizeOcrText(rawText);
   const lines = text
     .split("\n")
     .map((line) => line.trim())
     .filter(Boolean);
-  const skipWords = /address|tel|date|receipt|table|covers?|server|total|subtotal|sub\s*total|tax|vat|change|cash|payment|paid|balance|thank|service|phone|email|reg|master/i;
+  const skipWords = /address|tel|date|receipt|table|covers?|server|total|subtotal|sub\s*total|rounding|tax|vat|gst|change|cash|payment|paid|balance|thank|service|phone|email|reg|master|member|loyalty/i;
   const total = findTotal(lines);
-  let products = extractProducts(getLineItemCandidates(lines), skipWords);
+  const rowProducts = extractProductsFromRows(getCandidateRows(lines, entries), skipWords);
+  const textProducts = extractProductsFromTextBlocks(getCandidateTextLines(lines), skipWords);
+  let products = chooseBestParsedProducts(rowProducts, textProducts);
+
+  if (!products.length) {
+    products = extractProducts(getLineItemCandidates(lines), skipWords);
+  }
 
   if (!products.length) {
     products = extractProducts(lines, skipWords);
   }
+  products = normalizeParsedProducts(products, total);
 
   return expenseSchema.parse({
     products,
     total,
     status: "Paid",
     dueDate: null,
-    paymentType: null,
+    paymentType: "Cash",
   });
 }
 
-async function extractPaddleOcrText(file) {
+async function extractPaddleOcrResult(file) {
   const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "receipt-ocr-"));
   const extension = path.extname(file.originalname || "") || ".jpg";
   const imagePath = path.join(tempDir, `receipt${extension}`);
@@ -690,7 +1342,10 @@ async function extractPaddleOcrText(file) {
       throw new Error(parsed.error || "PaddleOCR failed.");
     }
 
-    return normalizeOcrText(parsed.text);
+    return {
+      text: normalizeOcrText(parsed.text),
+      entries: Array.isArray(parsed.entries) ? parsed.entries : [],
+    };
   } catch (error) {
     if (error?.code === "ENOENT") {
       throw new Error(
@@ -723,7 +1378,7 @@ async function appendToSheet(expense) {
 
   const appendResult = await sheets.spreadsheets.values.append({
     spreadsheetId,
-    range: `${sheetName}!A:H`,
+    range: `${sheetName}!A:I`,
     valueInputOption: "USER_ENTERED",
     insertDataOption: "INSERT_ROWS",
     requestBody: {
@@ -791,14 +1446,6 @@ async function extractExpenseData(file) {
 }
 
 app.use("/assets", express.static(path.join(projectRoot, "public")));
-app.use(
-  "/vendor/tesseract",
-  express.static(path.join(projectRoot, "node_modules", "tesseract.js", "dist"))
-);
-app.use(
-  "/vendor/tesseract-core",
-  express.static(path.join(projectRoot, "node_modules", "tesseract.js-core"))
-);
 app.use(express.json());
 
 app.get("/", (_req, res) => {
@@ -834,7 +1481,7 @@ app.get("/api/health", (_req, res) => {
   res.json(getHealthStatus());
 });
 
-app.post("/api/receipts/analyze", requireAuth, upload.single("receipt"), async (req, res) => {
+app.post("/api/receipts/analyze", requireAuth, uploadReceipt, async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: "No receipt image uploaded." });
@@ -861,14 +1508,14 @@ app.post("/api/receipts/analyze", requireAuth, upload.single("receipt"), async (
   }
 });
 
-app.post("/api/receipts/ocr", requireAuth, upload.single("receipt"), async (req, res) => {
+app.post("/api/receipts/ocr", requireAuth, uploadReceipt, async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: "No receipt image uploaded." });
     }
 
-    const rawText = await extractPaddleOcrText(req.file);
-    const parsedExpense = parseOcrExpense(rawText);
+    const ocrResult = await extractPaddleOcrResult(req.file);
+    const parsedExpense = parseOcrExpense(ocrResult.text, ocrResult.entries);
 
     return res.json({
       success: true,
@@ -876,7 +1523,7 @@ app.post("/api/receipts/ocr", requireAuth, upload.single("receipt"), async (req,
       message: "Receipt read with PaddleOCR. Review the preview before submitting.",
       receipt: parsedExpense,
       sheetPreview: buildSheetPreview(parsedExpense),
-      rawText,
+      rawText: ocrResult.text,
     });
   } catch (error) {
     return res.status(503).json({
@@ -903,6 +1550,23 @@ app.post("/api/receipts/submit", requireAuth, async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Receipt app listening on http://localhost:${PORT}`);
+app.use("/api", (_req, res) => {
+  res.status(404).json({ error: "API endpoint was not found." });
 });
+
+app.use((error, req, res, next) => {
+  if (!req.originalUrl.startsWith("/api/")) {
+    return next(error);
+  }
+
+  const { httpStatus, message } = getClientError(error);
+  return res.status(httpStatus).json({ error: message });
+});
+
+if (process.env.NODE_ENV !== "test") {
+  app.listen(PORT, () => {
+    console.log(`Receipt app listening on http://localhost:${PORT}`);
+  });
+}
+
+export { parseOcrExpense, buildSheetPreview };
