@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -121,7 +122,27 @@ def main():
         })
         return 3
 
+    # PP-OCRv5 (and its native deps: paddle, oneDNN, glog) write colored progress
+    # text directly to OS stdout fd, which corrupts our JSON output.
+    # Redirect at the file-descriptor level so native libraries are also captured.
+    sys.stdout.flush()
+    saved_stdout_fd = os.dup(1)
+    stdout_restored = False
+
+    def restore_stdout():
+        nonlocal stdout_restored
+        if stdout_restored:
+            return
+        try:
+            sys.stdout.flush()
+        except Exception:
+            pass
+        os.dup2(saved_stdout_fd, 1)
+        os.close(saved_stdout_fd)
+        stdout_restored = True
+
     try:
+        os.dup2(2, 1)
         try:
             ocr = PaddleOCR(
                 lang="en",
@@ -135,20 +156,22 @@ def main():
             ocr = PaddleOCR(lang="en", use_angle_cls=True, show_log=False)
             result = ocr.ocr(str(image_path), cls=True)
             entries = collect_text_from_old_result(result)
-
-        lines = [entry["text"] for entry in entries]
-
-        emit({
-            "ok": True,
-            "engine": "paddleocr",
-            "text": "\n".join(lines),
-            "lines": lines,
-            "entries": entries,
-        })
-        return 0
     except Exception as error:
+        restore_stdout()
         emit({"ok": False, "error": f"PaddleOCR failed: {error}"})
         return 4
+    finally:
+        restore_stdout()
+
+    lines = [entry["text"] for entry in entries]
+    emit({
+        "ok": True,
+        "engine": "paddleocr",
+        "text": "\n".join(lines),
+        "lines": lines,
+        "entries": entries,
+    })
+    return 0
 
 
 if __name__ == "__main__":

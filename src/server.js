@@ -149,6 +149,26 @@ function isRetryableGeminiError(error) {
 function getClientError(error) {
   const details = getGeminiErrorDetails(error);
 
+  if (
+    details.code === 404 &&
+    String(details.message || "").includes("Requested entity was not found")
+  ) {
+    return {
+      httpStatus: 500,
+      message: `Google Sheet was not found or is not shared with ${process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL}. Check GOOGLE_SHEETS_SPREADSHEET_ID and share the Sheet with the service account as an editor.`,
+    };
+  }
+
+  if (
+    details.code === 400 &&
+    String(details.message || "").toLowerCase().includes("unable to parse range")
+  ) {
+    return {
+      httpStatus: 500,
+      message: `Google Sheet tab was not found. Check GOOGLE_SHEETS_ID_WORKSHEET_NAME (${ID_SHEET_NAME}) and GOOGLE_SHEETS_WORKSHEET_NAME (${EXPENSE_SHEET_NAME}).`,
+    };
+  }
+
   if (details.code === 503 || details.status === "UNAVAILABLE") {
     return {
       httpStatus: 503,
@@ -589,19 +609,41 @@ function normalizeOcrText(text) {
 
 function findTotal(lines) {
   const totalWords = /^(grand\s*)?total\b|^total\s*to\s*pay\b|^amount\s*due\b|^balance\b|^net\s*amount\b/i;
-  const ignoredWords = /subtotal|sub\s*total|tax|vat|change|cash|payment\s*per\s*guest/i;
+  // ignoredWords: skip summary/tax lines and "TOTAL includes GST" style lines
+  const ignoredWords = /subtotal|sub\s*total|tax|vat|change|cash|payment\s*per\s*guest|\bgst\b/i;
 
   for (let index = lines.length - 1; index >= 0; index -= 1) {
     const line = lines[index];
 
     if (totalWords.test(line) && !ignoredWords.test(line)) {
-      const amount = parseMoney(line);
+      // Use strict money matching (requires currency symbol or 2 decimal places)
+      // to avoid picking up item counts like "Total (10 items)"
+      const strictMatches = getMoneyMatches(line);
+      const amount = strictMatches.length
+        ? parseMoney(strictMatches[strictMatches.length - 1][0])
+        : null;
 
       if (amount !== null) {
         return amount;
       }
 
-      const nextAmount = parseMoney(lines[index + 1]);
+      // Check previous line first: tilted receipts emit the amount before the label in Y-order
+      const prevLine = index > 0 ? lines[index - 1] : null;
+      const prevStrictMatches = prevLine ? getMoneyMatches(prevLine) : [];
+      const prevAmount = prevStrictMatches.length
+        ? parseMoney(prevStrictMatches[prevStrictMatches.length - 1][0])
+        : null;
+
+      if (prevAmount !== null) {
+        return prevAmount;
+      }
+
+      // Fall back to next line (standard receipts: label then amount)
+      const nextLine = lines[index + 1];
+      const nextStrictMatches = nextLine ? getMoneyMatches(nextLine) : [];
+      const nextAmount = nextStrictMatches.length
+        ? parseMoney(nextStrictMatches[nextStrictMatches.length - 1][0])
+        : null;
 
       if (nextAmount !== null) {
         return nextAmount;
@@ -636,6 +678,41 @@ function cleanLineItemName(line) {
     .trim();
 }
 
+function parseCodeLineItem(line) {
+  const value = String(line || "").trim();
+  const codeMatch = value.match(/\([A-Za-z0-9]{2,}\)\s+/);
+
+  if (!codeMatch) {
+    return null;
+  }
+
+  const itemText = value.slice(codeMatch.index).trim();
+  const moneyMatches = getMoneyMatches(itemText);
+
+  if (!moneyMatches.length) {
+    return null;
+  }
+
+  const lastMoneyMatch = moneyMatches[moneyMatches.length - 1];
+  const total = parseMoney(lastMoneyMatch[0]);
+
+  if (total === null) {
+    return null;
+  }
+
+  const beforeTotal = itemText.slice(0, lastMoneyMatch.index).trim();
+  const qtyMatch = beforeTotal.match(/\b(\d{1,3})\s*$/);
+  const qty = qtyMatch?.[1] || "1";
+  const beforeQty = qtyMatch ? beforeTotal.slice(0, qtyMatch.index).trim() : beforeTotal;
+  const unitMoneyMatches = getMoneyMatches(beforeQty);
+  const lastUnitMoneyMatch = unitMoneyMatches[unitMoneyMatches.length - 1];
+  const name = lastUnitMoneyMatch
+    ? beforeQty.slice(0, lastUnitMoneyMatch.index).trim()
+    : beforeQty;
+
+  return createProduct(name, qty, total);
+}
+
 function shouldJoinPendingName(pendingName, name) {
   if (!pendingName || !name) {
     return false;
@@ -650,11 +727,17 @@ function shouldJoinPendingName(pendingName, name) {
 }
 
 function isPackageFragment(name) {
-  return /^[a-z]?\s*\d+\s*x/i.test(name) || /^\d+\s*(?:pk|x|ml|g|kg|l)\b/i.test(name);
+  const value = String(name || "").trim();
+  // Strings with more than 3 words are product names, not pure package descriptors
+  // (guards against reversed OCR fragments like "95G SCALE SHRIMP PASTE")
+  if (value.split(/\s+/).length > 3) {
+    return false;
+  }
+  return /^[a-z]?\s*\d+\s*x/i.test(value) || /^\d+\s*(?:pk|x|ml|g|kg|l)\b/i.test(value);
 }
 
 function isSummaryLine(line) {
-  return /\bsubtotal\b|sub\s*total|^rounding\b|^total\b|^cash\b|^change\b|^gst\b|^tax\b|served\s+by|receipt\s+number|loyalty|member/i.test(
+  return /\bsubtotal\b|sub\s*total|^rounding\b|^total\b|^cash\b|^change\b|^gst\b|^tax\b|served\s+by|receipt\s+number|loyalty|member|beep\s+and\s+flash|take\s+the\s+meal/i.test(
     String(line || "")
   );
 }
@@ -856,6 +939,34 @@ function normalizeParsedProducts(products, receiptTotal) {
     });
 }
 
+function estimateDocumentTilt(entries) {
+  // Estimate slope (dy/dx) of text lines from pairs of entries likely on the same line
+  const slopes = [];
+  const limit = Math.min(entries.length, 80);
+
+  for (let i = 0; i < limit; i++) {
+    for (let j = i + 1; j < limit; j++) {
+      const a = entries[i];
+      const b = entries[j];
+      const dx = b.x1 - a.x1;
+      const dy = b.centerY - a.centerY;
+      const avgHeight = (a.height + b.height) / 2;
+
+      // Same-line pair: significant horizontal gap, small vertical gap relative to text height
+      if (Math.abs(dx) > avgHeight * 3 && Math.abs(dy) < avgHeight * 1.5) {
+        slopes.push(dy / dx);
+      }
+    }
+  }
+
+  if (slopes.length < 5) {
+    return 0;
+  }
+
+  slopes.sort((a, b) => a - b);
+  return slopes[Math.floor(slopes.length / 2)];
+}
+
 function getOcrRows(entries) {
   const positioned = (entries || [])
     .filter((entry) => entry?.text && Array.isArray(entry.box) && entry.box.length === 4)
@@ -873,28 +984,41 @@ function getOcrRows(entries) {
     })
     .filter((entry) =>
       [entry.x1, entry.x2, entry.y1, entry.y2].every((value) => Number.isFinite(value))
-    )
-    .sort((left, right) => left.centerY - right.centerY || left.x1 - right.x1);
+    );
 
   if (!positioned.length) {
     return [];
   }
 
+  // Correct for document tilt so left-column names and right-column prices
+  // on the same receipt line are grouped into the same row
+  const tilt = estimateDocumentTilt(positioned);
+
+  const sorted = positioned
+    .map((entry) => ({
+      ...entry,
+      correctedY: entry.centerY - tilt * (entry.x1 + entry.x2) / 2,
+    }))
+    .sort((a, b) => a.correctedY - b.correctedY || a.x1 - b.x1);
+
   const rows = [];
 
-  for (const entry of positioned) {
+  for (const entry of sorted) {
     const lastRow = rows[rows.length - 1];
-    const tolerance = Math.max(3, entry.height * 0.35);
+    const tolerance = Math.max(3, entry.height * 0.6);
 
-    if (!lastRow || Math.abs(lastRow.centerY - entry.centerY) > tolerance) {
+    if (!lastRow || Math.abs(lastRow.correctedY - entry.correctedY) > tolerance) {
       rows.push({
         centerY: entry.centerY,
+        correctedY: entry.correctedY,
         items: [entry],
       });
       continue;
     }
 
     lastRow.items.push(entry);
+    lastRow.correctedY =
+      lastRow.items.reduce((sum, item) => sum + item.correctedY, 0) / lastRow.items.length;
     lastRow.centerY =
       lastRow.items.reduce((sum, item) => sum + item.centerY, 0) / lastRow.items.length;
   }
@@ -936,6 +1060,16 @@ function extractProductsFromRows(rows, skipWords) {
     const line = String(row.text || "").trim();
 
     if (!line || skipWords.test(line) || isSummaryLine(line)) {
+      continue;
+    }
+
+    const codeLineProduct = parseCodeLineItem(line);
+
+    if (codeLineProduct) {
+      products.push(codeLineProduct);
+      lastProduct = codeLineProduct;
+      pendingNameParts = [];
+      pendingQty = null;
       continue;
     }
 
@@ -1057,11 +1191,48 @@ function extractProductsFromTextBlocks(lines, skipWords) {
   let pendingUnitPrice = null;
   let expectingQty = false;
   let lastProduct = null;
+  // Tracks orphan prices that arrived before their product names (tilted receipt ordering)
+  let pendingOrphanAmount = null;
+  let pendingOrphanQty = null;
+  // FIFO queue of products whose names were accumulated before their prices arrived
+  // (OCR sometimes lists several product names in a row, then their prices afterwards)
+  const deferredProducts = [];
+  // Once we hit a Total/Subtotal/GST line, we're past the product list — stop
+  // accumulating names or orphan prices so receipt footer text doesn't become a "product".
+  let pastProductList = false;
 
   for (const line of lines) {
     const value = String(line || "").trim();
 
-    if (shouldIgnoreRawTextLine(value, skipWords)) {
+    if (/^(?:sub\s*)?total\b|^gst\b|^cash\b|^change\b|^balance\b|^amount\s+due\b/i.test(value)) {
+      pastProductList = true;
+    }
+
+    if (shouldIgnoreRawTextLine(value, skipWords) || pastProductList) {
+      continue;
+    }
+
+    const codeLineProduct = parseCodeLineItem(value);
+
+    if (codeLineProduct) {
+      products.push(codeLineProduct);
+      lastProduct = codeLineProduct;
+      pendingNameParts = [];
+      pendingQty = null;
+      pendingUnitPrice = null;
+      pendingOrphanAmount = null;
+      pendingOrphanQty = null;
+      expectingQty = false;
+      continue;
+    }
+
+    // Column headers (DESCRIPTION / AMOUNT / ITEM / PRICE) mark the start of the
+    // product list. Clear any header noise that was accumulated before them.
+    if (/^(?:description|amount|item|price)$/i.test(value)) {
+      pendingNameParts = [];
+      pendingQty = null;
+      pendingUnitPrice = null;
+      expectingQty = false;
       continue;
     }
 
@@ -1077,7 +1248,49 @@ function extractProductsFromTextBlocks(lines, skipWords) {
     }
 
     if (qty && hasMetadata) {
-      pendingQty = qty;
+      // OCR often reads "2 @" as "20" (the @ blends into a 0). When the line is
+      // "Qty 20" with no @ visible, strip the trailing 0 — same heuristic as the
+      // standalone-digit case below.
+      const hasAtSymbol = /@/.test(value);
+      pendingQty = !hasAtSymbol && qty.length === 2 && qty.endsWith("0") ? qty.slice(0, 1) : qty;
+    }
+
+    // Structured line item: "N x $UNIT = $TOTAL" — pair qty + total with the pending
+    // name directly so the math expression doesn't end up inside the product name.
+    const structuredMatch = value.match(
+      /^(\d+(?:\.\d+)?)\s*[xX@]\s*\$?\d+(?:[.,]\d+)?\s*=\s*\$?(\d+(?:[.,]\d+)?)/
+    );
+    if (structuredMatch) {
+      const lineQty = structuredMatch[1];
+      const lineTotal = parseMoney(structuredMatch[2]);
+
+      if (lineTotal !== null) {
+        let nameParts = null;
+
+        if (deferredProducts.length) {
+          nameParts = deferredProducts.shift().nameParts;
+        } else if (pendingNameParts.length) {
+          nameParts = pendingNameParts;
+        }
+
+        if (nameParts) {
+          const product = createProduct(joinProductParts(nameParts), lineQty, lineTotal);
+          if (product) {
+            products.push(product);
+            lastProduct = product;
+          }
+
+          if (nameParts === pendingNameParts) {
+            pendingNameParts = [];
+            pendingQty = null;
+            pendingUnitPrice = null;
+          }
+          pendingOrphanAmount = null;
+          pendingOrphanQty = null;
+          expectingQty = false;
+          continue;
+        }
+      }
     }
 
     if (expectingQty && /^\d{1,2}$/.test(value)) {
@@ -1101,6 +1314,19 @@ function extractProductsFromTextBlocks(lines, skipWords) {
     }
 
     if (amountOnly) {
+      // Pair price with the oldest deferred product first (its name was accumulated
+      // earlier but its price hadn't arrived yet). Current pendingNameParts stays.
+      if (deferredProducts.length) {
+        const next = deferredProducts.shift();
+        const product = createProduct(joinProductParts(next.nameParts), next.qty, amount);
+        if (product) {
+          products.push(product);
+          lastProduct = product;
+        }
+        expectingQty = false;
+        continue;
+      }
+
       if (pendingNameParts.length && pendingQty && pendingUnitPrice === null) {
         pendingUnitPrice = amount;
         expectingQty = false;
@@ -1108,7 +1334,10 @@ function extractProductsFromTextBlocks(lines, skipWords) {
       }
 
       if (pendingNameParts.length) {
-        const product = createProduct(joinProductParts(pendingNameParts), pendingQty, amount);
+        // If a price arrived before these names (tilted receipt), use that price instead
+        const productAmount = pendingOrphanAmount !== null ? pendingOrphanAmount : amount;
+        const productQty = pendingOrphanAmount !== null ? (pendingOrphanQty ?? pendingQty) : pendingQty;
+        const product = createProduct(joinProductParts(pendingNameParts), productQty, productAmount);
 
         if (product) {
           products.push(product);
@@ -1118,10 +1347,20 @@ function extractProductsFromTextBlocks(lines, skipWords) {
         pendingNameParts = [];
         pendingQty = null;
         pendingUnitPrice = null;
+
+        if (pendingOrphanAmount !== null) {
+          // Still in price-before-name mode: current amount is the next product's price
+          pendingOrphanAmount = amount;
+          pendingOrphanQty = null;
+        }
       } else if (lastProduct && pendingQty) {
         updateProductQuantityFromUnitPrice(lastProduct, pendingQty, amount);
         pendingQty = null;
         pendingUnitPrice = null;
+      } else {
+        // Price with no pending names: save for the name fragments that follow
+        pendingOrphanAmount = amount;
+        pendingOrphanQty = null;
       }
 
       expectingQty = false;
@@ -1140,6 +1379,8 @@ function extractProductsFromTextBlocks(lines, skipWords) {
           pendingNameParts = [];
           pendingQty = null;
           pendingUnitPrice = null;
+          pendingOrphanAmount = null;
+          pendingOrphanQty = null;
         }
       }
 
@@ -1153,17 +1394,45 @@ function extractProductsFromTextBlocks(lines, skipWords) {
 
     const part = cleanContinuationPart(value);
 
-    if (part && !isQuantityLine(part) && !isMetadataLine("", part)) {
+    // Drop single-character OCR noise (A, T, ], *, #, /, etc.) — never legitimate product text.
+    if (part && part.length >= 2 && !isQuantityLine(part) && !isMetadataLine("", part)) {
       if (
         pendingNameParts.length &&
         /^(?:Golden Circle|Coca Cola|WW |Essentials |Pocky |Haribo |Ingham's)/i.test(part)
       ) {
+        // Defer the previous product — its price will arrive in a later line and
+        // get paired via deferredProducts FIFO when amountOnly fires.
+        deferredProducts.push({
+          nameParts: pendingNameParts,
+          qty: pendingQty,
+        });
         pendingNameParts = [];
         pendingQty = null;
         pendingUnitPrice = null;
       }
 
       pendingNameParts.push(part);
+    }
+  }
+
+  // Flush last orphan price + accumulated names (price-before-name ordering on last product)
+  if (pendingOrphanAmount !== null && pendingNameParts.length > 0) {
+    const product = createProduct(
+      joinProductParts(pendingNameParts),
+      pendingOrphanQty ?? pendingQty,
+      pendingOrphanAmount
+    );
+
+    if (product) {
+      products.push(product);
+    }
+  }
+
+  // Any deferred products that never got their price → emit with 0 so user can edit
+  for (const deferred of deferredProducts) {
+    const product = createProduct(joinProductParts(deferred.nameParts), deferred.qty, 0);
+    if (product) {
+      products.push(product);
     }
   }
 
@@ -1207,6 +1476,10 @@ function chooseBestParsedProducts(rowProducts, textProducts) {
 
   if (rowFragmentCount > textFragmentCount) {
     return textProducts;
+  }
+
+  if (rowProducts.length > textProducts.length && rowFragmentCount <= textFragmentCount) {
+    return rowProducts;
   }
 
   if (noisyContinuationCount(rowProducts) > noisyContinuationCount(textProducts)) {
