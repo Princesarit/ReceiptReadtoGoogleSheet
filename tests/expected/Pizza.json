@@ -1,0 +1,35 @@
+{
+    "products":  [
+                     {
+                         "product":  "VILLAGE STYLE GREEK SALAD",
+                         "qty":  1,
+                         "price":  19.9
+                     },
+                     {
+                         "product":  "TROPICAL HAWAIIAN (MED)",
+                         "qty":  1,
+                         "price":  23.9
+                     },
+                     {
+                         "product":  "OUTBACK BLAZE (MED)",
+                         "qty":  1,
+                         "price":  24.9
+                     },
+                     {
+                         "product":  "SOUTH AMERICAN PIZZA (MED)",
+                         "qty":  1,
+                         "price":  24.9
+                     },
+                     {
+                         "product":  "SPAGH CARBONARA",
+                         "qty":  1,
+                         "price":  27.9
+                     },
+                     {
+                         "product":  "SPAGH MARINARA",
+                         "qty":  1,
+                         "price":  31.9
+                     }
+                 ],
+    "total":  153.4
+}

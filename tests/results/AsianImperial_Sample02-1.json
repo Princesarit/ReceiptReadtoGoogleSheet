@@ -1,0 +1,150 @@
+{
+  "file": "AsianImperial_Sample02-1.png",
+  "results": {
+    "ocr": {
+      "status": 200,
+      "ok": true,
+      "ms": 20965,
+      "body": {
+        "success": true,
+        "engine": "paddleocr",
+        "message": "Receipt read with PaddleOCR. Review the preview before submitting.",
+        "receipt": {
+          "products": [
+            {
+              "name": "GCB FROZEN CHA-OM M LEAF F 150G",
+              "qty": "1",
+              "total": 3.7
+            },
+            {
+              "name": "PKN GILLED BANANA A W/ COCONUT SCE",
+              "qty": "1",
+              "total": 15
+            },
+            {
+              "name": "LV YINSI I RICE VERMICELLI I 300G S",
+              "qty": "3",
+              "total": 6.3
+            },
+            {
+              "name": "OCHA DRIED RED COTTON N FLOWER8OG",
+              "qty": "1",
+              "total": 3.99
+            },
+            {
+              "name": "SCALE SHRIMP PASTE 95G",
+              "qty": "1",
+              "total": 1.99
+            },
+            {
+              "name": "THAI BOY COOKING TAMARIND 375G",
+              "qty": "1",
+              "total": 3.5
+            },
+            {
+              "name": "TONG DRIED BUTTERFLY PEA 80G",
+              "qty": "1",
+              "total": 7.2
+            },
+            {
+              "name": "TOUR NOAW",
+              "qty": "1",
+              "total": 4.99
+            }
+          ],
+          "total": 46.65,
+          "status": "Paid",
+          "dueDate": null,
+          "paymentType": "Cash"
+        },
+        "sheetPreview": {
+          "headers": [
+            "Date",
+            "Product",
+            "Qty",
+            "Price",
+            "Status",
+            "Due Date",
+            "Payment_Type"
+          ],
+          "rows": [
+            [
+              "Created when submitted",
+              "GCB FROZEN CHA-OM M LEAF F 150G",
+              "1",
+              3.7,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "PKN GILLED BANANA A W/ COCONUT SCE",
+              "1",
+              15,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "LV YINSI I RICE VERMICELLI I 300G S",
+              "3",
+              6.3,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "OCHA DRIED RED COTTON N FLOWER8OG",
+              "1",
+              3.99,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "SCALE SHRIMP PASTE 95G",
+              "1",
+              1.99,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "THAI BOY COOKING TAMARIND 375G",
+              "1",
+              3.5,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "TONG DRIED BUTTERFLY PEA 80G",
+              "1",
+              7.2,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "TOUR NOAW",
+              "1",
+              4.99,
+              "Paid",
+              "",
+              "Cash"
+            ]
+          ],
+          "total": 46.65
+        },
+        "rawText": "WELCOME TO\nAsian Imperial Central\n3 / 50 PARK ROAD\nCABRAMATTA NSW 2166\nPHONE / FAX: (02) 9726 6889\nABN: 48 641 853 723\nTAX INVOICE\n(*) denotes items which attract GST\n(P) denotes price override items\nMonday\n20/04/2026 02:29pm\n$3.70\nF 150G\nM LEAF\nGCB FROZEN CHA-OM\n$15.00\nA W/ COCONUT SCE\nP*KN GILLED BANANA\nI 300G S\nI RICE\nVERMICELLI\nLV YINSI\n$6.30\n3 @ $2.10\n$3.99\nN FLOWER8OG\nRED\nCOTTON\nOCHA\nDRIED\n$1.99\n95G\nSCALE\nSHRIMP PASTE\n$3.50\nTAMARIND 375G\nTHAI\nBOY\nCOOKING\n$7.20\nBUTTERFLY PEA 80G\nTONG\nDRIED\n$4.99\nTOUR\nNOAW\n$46.67\nSubtotal\n$-0.02\nRounding\n$46.65\nTotal (10 items)\n$50.00\nCASH\n$3.35\nCHANGE\n$1.36\nGST\nLane #02\nServed by ANNA P\n00373175\nReceipt Number\nAs a member, you would have earned\n47 Loyalty Points\nRegister today!\nHOURS\nTRADING\n7 DAYS A WEEK\n8:00AM - 6:00PM\nTHANK YOU FOR SHOPPING AT CHANG MARKET\nJOIN OUR FREE LOYALTY PROGRAM\nBecome a member today. Get Rewards.\nSCAN CODE TO JOIN NOW"
+      }
+    }
+  }
+}

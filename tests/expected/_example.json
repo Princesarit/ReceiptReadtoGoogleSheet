@@ -1,0 +1,14 @@
+{
+  "_comment": "ตัวอย่าง ground truth — copy ไฟล์นี้เป็น <ชื่อบิล>.json แล้วกรอกค่าจริงจากรูป",
+  "_schema": {
+    "products": "array ของ { product, qty, price }",
+    "total": "ตัวเลขรวม (ตรงกับช่อง Total ในรูป)",
+    "status": "ถ้าใส่ จะเทียบ; ไม่ใส่ก็ได้",
+    "paymentType": "ถ้าใส่ จะเทียบ; ไม่ใส่ก็ได้"
+  },
+  "products": [
+    { "product": "Coca-Cola 500ml", "qty": 2, "price": 20.00 },
+    { "product": "Lays Original",   "qty": 1, "price": 25.00 }
+  ],
+  "total": 65.00
+}

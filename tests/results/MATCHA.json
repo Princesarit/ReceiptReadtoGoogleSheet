@@ -1,0 +1,122 @@
+{
+  "file": "MATCHA.jpg",
+  "results": {
+    "ocr": {
+      "status": 200,
+      "ok": true,
+      "ms": 21620,
+      "body": {
+        "success": true,
+        "engine": "paddleocr",
+        "message": "Receipt read with PaddleOCR. Review the preview before submitting.",
+        "receipt": {
+          "products": [
+            {
+              "name": "(M01) Single Origin Matcha Straight [Ice, Takeaway, No sugar]",
+              "qty": "1",
+              "total": 9.9
+            },
+            {
+              "name": "(SfO3) M&H Swirl Soft Serve [Cup]",
+              "qty": "1",
+              "total": 6
+            },
+            {
+              "name": "(Sf01) Matcha Soft Serve [Cup]",
+              "qty": "1",
+              "total": 6
+            },
+            {
+              "name": "(SwO3) Roll cake Yuzu",
+              "qty": "1",
+              "total": 12.9
+            },
+            {
+              "name": "(Sw01) Roll cake Matcha",
+              "qty": "1",
+              "total": 12.9
+            },
+            {
+              "name": "(Ka02) Matcha Kakigori [Dine-in]",
+              "qty": "1",
+              "total": 10.5
+            }
+          ],
+          "total": 58.2,
+          "status": "Paid",
+          "dueDate": null,
+          "paymentType": "Cash"
+        },
+        "sheetPreview": {
+          "headers": [
+            "Date",
+            "Product",
+            "Qty",
+            "Price",
+            "Status",
+            "Due Date",
+            "Payment_Type"
+          ],
+          "rows": [
+            [
+              "Created when submitted",
+              "(M01) Single Origin Matcha Straight [Ice, Takeaway, No sugar]",
+              "1",
+              9.9,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "(SfO3) M&H Swirl Soft Serve [Cup]",
+              "1",
+              6,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "(Sf01) Matcha Soft Serve [Cup]",
+              "1",
+              6,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "(SwO3) Roll cake Yuzu",
+              "1",
+              12.9,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "(Sw01) Roll cake Matcha",
+              "1",
+              12.9,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "(Ka02) Matcha Kakigori [Dine-in]",
+              "1",
+              10.5,
+              "Paid",
+              "",
+              "Cash"
+            ]
+          ],
+          "total": 58.2
+        },
+        "rawText": "MATCHAYA\nTicket Number\n10\nTAX INVOICE\nNW.O5, 10 Steam Mill Lane, Darling Square NSW 2000\nTEL : *****\nABN : 52 618 317 123\nTable : 10 (1 Guests)\nDate..: Sun, 03 May, 2026 - 14:13:55\nQty\nTotal\nPrice\nDescription\n$9.90\n$9.90\n(M01) Single Origin\nM\nMatcha Straight [Ice,\nTakeaway, No sugar]\n$6.00\n$6.00\n(SfO3) M&H Swirl Soft\nYA\nServe [Cup]\n1\n$6.00\n$6.00\n(Sf01) Matcha Soft Serve\n[Cup]\nATCHA\n$12.90\n$12.90\n(SwO3) Roll cake Yuzu\ncream [Combo]\n$12.90\n1\n(Sw01) Roll cake Matcha $12.90\ncreamn [Combo]\n(Ka02) Matcha Kakigori $10.50 1 $10.50\nWhen beep and flash\n[Dine-in]\nPlease take the meal\n$58.20\nSub Total (Inc GST)\n$5.29\nGST(10%)\n$0.00\nRounding\n10\n$58.20\nGrand Total\n$60.00\nPayment\n($60.00)\n$1.80\n(Cash)\nChange Due\nThank you for choosing\nMatcha Ya\nOperator:Staff /No: MFO3FGYT"
+      }
+    }
+  }
+}

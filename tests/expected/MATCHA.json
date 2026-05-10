@@ -1,0 +1,35 @@
+{
+    "products":  [
+                     {
+                         "product":  "(M01) Single Origin Matcha Straight [Ice, Takeaway, No sugar]",
+                         "qty":  1,
+                         "price":  9.9
+                     },
+                     {
+                         "product":  "(Sf03) M\u0026H Swirl Soft Serve [Cup]",
+                         "qty":  1,
+                         "price":  6
+                     },
+                     {
+                         "product":  "(Sf01) Matcha Soft Serve [Cup]",
+                         "qty":  1,
+                         "price":  6
+                     },
+                     {
+                         "product":  "(Sw03) Roll cake Yuzu cream [Combo]",
+                         "qty":  1,
+                         "price":  12.9
+                     },
+                     {
+                         "product":  "(Sw01) Roll cake Matcha cream [Combo]",
+                         "qty":  1,
+                         "price":  12.9
+                     },
+                     {
+                         "product":  "(Ka02) Matcha Kakigori [Dine-in]",
+                         "qty":  1,
+                         "price":  10.5
+                     }
+                 ],
+    "total":  58.2
+}

@@ -1,0 +1,122 @@
+{
+  "file": "Pizza.jpg",
+  "results": {
+    "ocr": {
+      "status": 200,
+      "ok": true,
+      "ms": 13410,
+      "body": {
+        "success": true,
+        "engine": "paddleocr",
+        "message": "Receipt read with PaddleOCR. Review the preview before submitting.",
+        "receipt": {
+          "products": [
+            {
+              "name": "VILLAGE STYLE GREEK SALAD",
+              "qty": "1",
+              "total": 19.9
+            },
+            {
+              "name": "TROPICAL HAWAIIAN (MED)",
+              "qty": "1",
+              "total": 23.9
+            },
+            {
+              "name": "- Renove PINEAPPLE OUTBACK BLAZE (MED)",
+              "qty": "1",
+              "total": 24.9
+            },
+            {
+              "name": "SOUTH AMERICAN PIZZA (MED)",
+              "qty": "1",
+              "total": 24.9
+            },
+            {
+              "name": "SPAGH CARBONARA",
+              "qty": "1",
+              "total": 27.9
+            },
+            {
+              "name": "SPAGH MARINARA",
+              "qty": "1",
+              "total": 31.9
+            }
+          ],
+          "total": 153.4,
+          "status": "Paid",
+          "dueDate": null,
+          "paymentType": "Cash"
+        },
+        "sheetPreview": {
+          "headers": [
+            "Date",
+            "Product",
+            "Qty",
+            "Price",
+            "Status",
+            "Due Date",
+            "Payment_Type"
+          ],
+          "rows": [
+            [
+              "Created when submitted",
+              "VILLAGE STYLE GREEK SALAD",
+              "1",
+              19.9,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "TROPICAL HAWAIIAN (MED)",
+              "1",
+              23.9,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "- Renove PINEAPPLE OUTBACK BLAZE (MED)",
+              "1",
+              24.9,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "SOUTH AMERICAN PIZZA (MED)",
+              "1",
+              24.9,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "SPAGH CARBONARA",
+              "1",
+              27.9,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "SPAGH MARINARA",
+              "1",
+              31.9,
+              "Paid",
+              "",
+              "Cash"
+            ]
+          ],
+          "total": 153.4
+        },
+        "rawText": "JOEY'S PIZZA AND PAST\nA\nSHOP 2 7 256 New LIne Road\nDURAL 2158\nAustralia\nTel: 0282288142\nwww.joeyspizzapasta.com.au\nTax Inv0ice ABN: 32686793742\nStaff: a, Till ID: 1\nSale Date: 8/05/2026 6:55:26 PM\nSale Ref: 11535\nDINE IN\nOrder No\n: 7\nTable: 8\nPeople\n: 0\nITEN\nPRICE\nQTY TOTAL($)\nVILLAGE STYLE GREEK SALAD\n19.90\n�\n19.90\nTROPICAL HAWAIIAN (MED)\n23.90\n23.90\n- Renove PINEAPPLE\nOUTBACK BLAZE (MED)\n24.90\n24.90\nSOUTH AMERICAN PIZZA (MED)\n24.90\n1\n24.90\n27.90\n-\n27.90\nSPAGH CARBONARA\n31.90\n1\n31.90\nSPAGH MARINARA\n153.40\nSUBTOTAL :\n$153.40\nTOTAL :\nTOTAL QTY :6\n153.40\nCARD\n..\n0.00\nCHANGE\n--\nGST\nTOTAL\nRATE\nNET\n139.45\n13.95\n153.40\n10.00%\nPrinted On : 8/05/2026 6:55:29 PM\nThank you for shopping with us"
+      }
+    }
+  }
+}

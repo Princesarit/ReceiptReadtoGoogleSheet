@@ -1,0 +1,15 @@
+{
+    "products":  [
+                     {
+                         "product":  "Art of Pastry Fillo Pastry 375g",
+                         "qty":  5,
+                         "price":  27
+                     },
+                     {
+                         "product":  "Peters Original Ice Cream Vanilla 4L",
+                         "qty":  5,
+                         "price":  54.5
+                     }
+                 ],
+    "total":  81.5
+}

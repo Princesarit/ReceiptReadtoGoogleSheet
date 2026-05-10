@@ -1,0 +1,66 @@
+{
+  "file": "woolworths_Sample03-1.png",
+  "results": {
+    "ocr": {
+      "status": 200,
+      "ok": true,
+      "ms": 23744,
+      "body": {
+        "success": true,
+        "engine": "paddleocr",
+        "message": "Receipt read with PaddleOCR. Review the preview before submitting.",
+        "receipt": {
+          "products": [
+            {
+              "name": "Art of Pastry Fillo Pastry 375g",
+              "qty": "5",
+              "total": 27
+            },
+            {
+              "name": "Peters Original Ice Cream Vanilla 4L",
+              "qty": "5",
+              "total": 54.5
+            }
+          ],
+          "total": 81.5,
+          "status": "Paid",
+          "dueDate": null,
+          "paymentType": "Cash"
+        },
+        "sheetPreview": {
+          "headers": [
+            "Date",
+            "Product",
+            "Qty",
+            "Price",
+            "Status",
+            "Due Date",
+            "Payment_Type"
+          ],
+          "rows": [
+            [
+              "Created when submitted",
+              "Art of Pastry Fillo Pastry 375g",
+              "5",
+              27,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "Peters Original Ice Cream Vanilla 4L",
+              "5",
+              54.5,
+              "Paid",
+              "",
+              "Cash"
+            ]
+          ],
+          "total": 81.5
+        },
+        "rawText": "Woolworths\nThe fresh foodpeople\n1364 Beecroft PH: 02 9450 6727\nCnr Hannah St and Beecroft Rd\nTAX INVOICE - ABN 88 000 014 675\nPOS 001 TRANS 8177 17:18 26/04/2026\nT\nDUPLICATE RECEIPT\n*************************************\nArt of Pastry Fillo Pastry 375g\nQty\n27.00\n5 @ $5.40\neach\n#Peters Original Ice Cream Vanilla 4L\n54.50\nQty\n5 @ $10.90 each\n$81.50\n10 SUBTOTAL\n$81.50\nTOTAL\n$100.00\nCash\n$18.50\nChange\n#Taxable Items\nTOTAL includes GST\n$4.95\nEveryday Revards\nNice! You just collected 82 points.\n514/200\nPoints balance\nCARD: *********6646\n*T&Cs apply. Visit everyday.com.au/terms\nCookvare Credits\nYou have 11 credits in total\nEarned today 4\nT&Cs apply. Visit www.woolworths.com.au/cookware\n62913640018177260426"
+      }
+    }
+  }
+}

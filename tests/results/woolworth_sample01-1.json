@@ -1,0 +1,262 @@
+{
+  "file": "woolworth_sample01-1.png",
+  "results": {
+    "ocr": {
+      "status": 200,
+      "ok": true,
+      "ms": 23178,
+      "body": {
+        "success": true,
+        "engine": "paddleocr",
+        "message": "Receipt read with PaddleOCR. Review the preview before submitting.",
+        "receipt": {
+          "products": [
+            {
+              "name": "Farmers Own 3L Ful1 Cream",
+              "qty": "2",
+              "total": 11.7
+            },
+            {
+              "name": "Just Caught Crumbed Squid Rings 800g",
+              "qty": "3",
+              "total": 37.2
+            },
+            {
+              "name": "Schweppes Lemonade 375ml 30Pk",
+              "qty": "1",
+              "total": 26
+            },
+            {
+              "name": "Coca Cola Classic 24x375ml",
+              "qty": "1",
+              "total": 25
+            },
+            {
+              "name": "Coca Cola Zero Sugar 24x375m1",
+              "qty": "1",
+              "total": 25
+            },
+            {
+              "name": "WW Corn Kernels 1kg",
+              "qty": "1",
+              "total": 5
+            },
+            {
+              "name": "Ingham's Chicken Breast Nuggets Orig 1kg",
+              "qty": "1",
+              "total": 11
+            },
+            {
+              "name": "Essentials Butter Unsalted 500g",
+              "qty": "4",
+              "total": 28
+            },
+            {
+              "name": "M&Ms Hinis Tube 35g",
+              "qty": "2",
+              "total": 5
+            },
+            {
+              "name": "Pocky Biscuit Stick Cookies & Cream 40g",
+              "qty": "1",
+              "total": 1.7
+            },
+            {
+              "name": "Pocky Biscuit Chocolate 47g",
+              "qty": "2",
+              "total": 3.4
+            },
+            {
+              "name": "Pocky Biscuit Strawb 45g",
+              "qty": "2",
+              "total": 3.4
+            },
+            {
+              "name": "Haribo Goldbears 400G",
+              "qty": "1",
+              "total": 5
+            },
+            {
+              "name": "Golden Circle Swt Pineapple Juice 1L",
+              "qty": "1",
+              "total": 3.6
+            },
+            {
+              "name": "Golden Circle Fruit Drink Orange Brst 1L",
+              "qty": "1",
+              "total": 2
+            },
+            {
+              "name": "Golden Circle Fruit Drink Apple 1l.",
+              "qty": "2",
+              "total": 4
+            }
+          ],
+          "total": 197,
+          "status": "Paid",
+          "dueDate": null,
+          "paymentType": "Cash"
+        },
+        "sheetPreview": {
+          "headers": [
+            "Date",
+            "Product",
+            "Qty",
+            "Price",
+            "Status",
+            "Due Date",
+            "Payment_Type"
+          ],
+          "rows": [
+            [
+              "Created when submitted",
+              "Farmers Own 3L Ful1 Cream",
+              "2",
+              11.7,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "Just Caught Crumbed Squid Rings 800g",
+              "3",
+              37.2,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "Schweppes Lemonade 375ml 30Pk",
+              "1",
+              26,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "Coca Cola Classic 24x375ml",
+              "1",
+              25,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "Coca Cola Zero Sugar 24x375m1",
+              "1",
+              25,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "WW Corn Kernels 1kg",
+              "1",
+              5,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "Ingham's Chicken Breast Nuggets Orig 1kg",
+              "1",
+              11,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "Essentials Butter Unsalted 500g",
+              "4",
+              28,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "M&Ms Hinis Tube 35g",
+              "2",
+              5,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "Pocky Biscuit Stick Cookies & Cream 40g",
+              "1",
+              1.7,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "Pocky Biscuit Chocolate 47g",
+              "2",
+              3.4,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "Pocky Biscuit Strawb 45g",
+              "2",
+              3.4,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "Haribo Goldbears 400G",
+              "1",
+              5,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "Golden Circle Swt Pineapple Juice 1L",
+              "1",
+              3.6,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "Golden Circle Fruit Drink Orange Brst 1L",
+              "1",
+              2,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "Golden Circle Fruit Drink Apple 1l.",
+              "2",
+              4,
+              "Paid",
+              "",
+              "Cash"
+            ]
+          ],
+          "total": 197
+        },
+        "rawText": "Woolworths\nThe fresh food people\n1364 Beecroft PH: 02 9450 6727\nCnr Hannah St and Beecroft Rd\nTAX INVOICE - ABN 88 000 014 675\nPOS 003 TRANS 6634 18:00 24/04/2026\n4\nFarmers Own 3L Ful1 Cream\n11.70\nQty2@\neach\n$5.85\nJust Caught Crumbed Squid Rings 800g\n37.20\nQty\n30\n$12.40\neach\n#Schweppes\ns Lemonade\ne 375ml\n1 30Pk\n26.00\n^HCoca\nCola\nClassic\nc 24x375ml\n25.00\nAHCoca Cola\na Zero\n0 Sugar\nr 24x375m1\n25.00\nWW Corn Kernels 1kg\n5.00\n^ Ingham's Chicken Breast Nuggets Orig 1kg\n11.00\nEssentials Butter Unsalted 500g\nQty 4 $7.00\neach\n28.00\n^HM&Ms Hinis Tube 35g\nQty.\n20\n$2.50\neach\n5.00\n^HPocky Biscuit Stick Cookies & Cream 40g\n1.70\n^HPocky Biscuit Chocolate 47g\nQty\n20\n$1.70\neach\n3.40\n^HPocky Biscuit Strawb 45g\nQty\n2 @\n$1.70\neach\n3.40\n#Haribo Goldbears 400G\nGolden Circle Swt Pineapple Juice 1L\n5.00\n#Golden Circle Fruit Drink Orange Brst 1L\n3.60\n#Golden Circle Fruit Drink Apple 1l.\n2.00\nQty 20\n$2.00\neach\n4.00\n26 SUBTOTAL\n$197.00\nTOTAL\n$197.0\nCash\n$200.00\nChange\n$3.00\n^Promotional Price\n#Taxable Items\nTOTAL\nincludes GST\n$9.14\nYou saved $39.80\nSpecials\n$39.80\nEverud"
+      }
+    }
+  }
+}

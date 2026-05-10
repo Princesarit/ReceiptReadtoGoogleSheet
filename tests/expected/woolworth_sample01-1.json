@@ -1,0 +1,85 @@
+{
+    "products":  [
+                     {
+                         "product":  "Farmers Own 3L Full Cream",
+                         "qty":  2,
+                         "price":  11.7
+                     },
+                     {
+                         "product":  "Just Caught Crumbed Squid Rings 800g",
+                         "qty":  3,
+                         "price":  37.2
+                     },
+                     {
+                         "product":  "Schweppes Lemonade 375ml 30Pk",
+                         "qty":  1,
+                         "price":  26
+                     },
+                     {
+                         "product":  "Coca Cola Classic 24x375ml",
+                         "qty":  1,
+                         "price":  25
+                     },
+                     {
+                         "product":  "Coca Cola Zero Sugar 24x375ml",
+                         "qty":  1,
+                         "price":  25
+                     },
+                     {
+                         "product":  "WW Corn Kernels 1kg",
+                         "qty":  1,
+                         "price":  5
+                     },
+                     {
+                         "product":  "Ingham\u0027s Chicken Breast Nuggets Orig 1kg",
+                         "qty":  1,
+                         "price":  11
+                     },
+                     {
+                         "product":  "Essentials Butter Unsalted 500g",
+                         "qty":  4,
+                         "price":  28
+                     },
+                     {
+                         "product":  "M\u0026Ms Minis Tube 35g",
+                         "qty":  2,
+                         "price":  5
+                     },
+                     {
+                         "product":  "Pocky Biscuit Stick Cookies \u0026 Cream 40g",
+                         "qty":  1,
+                         "price":  1.7
+                     },
+                     {
+                         "product":  "Pocky Biscuit Chocolate 47g",
+                         "qty":  2,
+                         "price":  3.4
+                     },
+                     {
+                         "product":  "Pocky Biscuit Strawb 45g",
+                         "qty":  2,
+                         "price":  3.4
+                     },
+                     {
+                         "product":  "Haribo Goldbears 400G",
+                         "qty":  1,
+                         "price":  5
+                     },
+                     {
+                         "product":  "Golden Circle Swt Pineapple Juice 1L",
+                         "qty":  1,
+                         "price":  3.6
+                     },
+                     {
+                         "product":  "Golden Circle Fruit Drink Orange Brst 1L",
+                         "qty":  1,
+                         "price":  2
+                     },
+                     {
+                         "product":  "Golden Circle Fruit Drink Apple 1L",
+                         "qty":  2,
+                         "price":  4
+                     }
+                 ],
+    "total":  197
+}

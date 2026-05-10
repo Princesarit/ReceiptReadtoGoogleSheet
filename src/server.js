@@ -1,4 +1,4 @@
-import "dotenv/config";
+﻿import "dotenv/config";
 import express from "express";
 import multer from "multer";
 import { GoogleGenAI, Type } from "@google/genai";
@@ -595,7 +595,7 @@ function parseMoney(value) {
 
 function getMoneyMatches(value) {
   return Array.from(
-    String(value || "").matchAll(/[$€£฿]\s*-?\d[\d,]*(?:[.,]\d{1,2})?|-?\d[\d,]*[.,]\d{2}/g)
+    String(value || "").matchAll(/[$โฌยฃเธฟ]\s*-?\d[\d,]*(?:[.,]\d{1,2})?|-?\d[\d,]*[.,]\d{2}/g)
   );
 }
 
@@ -616,6 +616,21 @@ function findTotal(lines) {
     const line = lines[index];
 
     if (totalWords.test(line) && !ignoredWords.test(line)) {
+      // Bare "TOTAL" with no colon/$/digit can be either:
+      //   1. A column header in a GST/tax-breakdown table (NOT the real total) — skip.
+      //   2. The actual total label with the amount on an adjacent line — keep.
+      // Distinguish by checking immediate neighbors: if neither has a price-only
+      // line, it's a column header and we should skip to the next totalWords match.
+      const isBareTotal = line.trim().length < 8 && !/[:$0-9]/.test(line);
+      if (isBareTotal) {
+        const prevLineCheck = index > 0 ? lines[index - 1] : null;
+        const nextLineCheck = lines[index + 1];
+        const prevPriceOnly = prevLineCheck && isPriceOnlyLine(prevLineCheck);
+        const nextPriceOnly = nextLineCheck && isPriceOnlyLine(nextLineCheck);
+        if (!prevPriceOnly && !nextPriceOnly) {
+          continue;
+        }
+      }
       // Use strict money matching (requires currency symbol or 2 decimal places)
       // to avoid picking up item counts like "Total (10 items)"
       const strictMatches = getMoneyMatches(line);
@@ -627,26 +642,36 @@ function findTotal(lines) {
         return amount;
       }
 
-      // Check previous line first: tilted receipts emit the amount before the label in Y-order
+      // Check previous line first: tilted receipts emit the amount before the label in
+      // Y-order. Only accept it if the prev line is price-only โ€” otherwise we may pull
+      // the last product's structured line (e.g. "3 X $13.80 = $41.40") as the total.
       const prevLine = index > 0 ? lines[index - 1] : null;
-      const prevStrictMatches = prevLine ? getMoneyMatches(prevLine) : [];
-      const prevAmount = prevStrictMatches.length
-        ? parseMoney(prevStrictMatches[prevStrictMatches.length - 1][0])
-        : null;
+      if (prevLine && isPriceOnlyLine(prevLine)) {
+        const prevStrictMatches = getMoneyMatches(prevLine);
+        const prevAmount = prevStrictMatches.length
+          ? parseMoney(prevStrictMatches[prevStrictMatches.length - 1][0])
+          : null;
 
-      if (prevAmount !== null) {
-        return prevAmount;
+        if (prevAmount !== null) {
+          return prevAmount;
+        }
       }
 
-      // Fall back to next line (standard receipts: label then amount)
-      const nextLine = lines[index + 1];
-      const nextStrictMatches = nextLine ? getMoneyMatches(nextLine) : [];
-      const nextAmount = nextStrictMatches.length
-        ? parseMoney(nextStrictMatches[nextStrictMatches.length - 1][0])
-        : null;
+      // Look forward, skipping interim ignored labels like "GST Included In Total:"
+      // so we land on the actual amount line ($481.80) rather than its preamble.
+      for (let lookAhead = 1; lookAhead <= 3; lookAhead += 1) {
+        const candidate = lines[index + lookAhead];
+        if (!candidate) break;
+        if (ignoredWords.test(candidate)) continue;
 
-      if (nextAmount !== null) {
-        return nextAmount;
+        const candidateMatches = getMoneyMatches(candidate);
+        const candidateAmount = candidateMatches.length
+          ? parseMoney(candidateMatches[candidateMatches.length - 1][0])
+          : null;
+
+        if (candidateAmount !== null) {
+          return candidateAmount;
+        }
       }
     }
   }
@@ -663,14 +688,14 @@ function cleanProductName(line) {
     .replace(/^[#^*\s]+/g, "")
     .replace(/^[AH]{1,2}(?=Coca\b|Pocky\b|M&Ms\b)/i, "")
     .replace(/[#^*]+/g, "")
-    .replace(/[$€£฿]\s*$/g, "")
+    .replace(/[$โฌยฃเธฟ]\s*$/g, "")
     .replace(/\s{2,}/g, " ")
     .trim();
 }
 
 function cleanLineItemName(line) {
   return cleanProductName(line)
-    .replace(/\b\d+\s*@\s*[$€£฿]?\s*\d[\d,.]*/gi, "")
+    .replace(/\b\d+\s*@\s*[$โฌยฃเธฟ]?\s*\d[\d,.]*/gi, "")
     .replace(/\b[a-z]\s+(?=\d+\s*x)/gi, "")
     .replace(/^\d+\s+(?=\d+\s*(?:pk|x))/i, "")
     .replace(/\s+[({[]?P[)}\]]?\s*$/i, "")
@@ -701,7 +726,9 @@ function parseCodeLineItem(line) {
   }
 
   const beforeTotal = itemText.slice(0, lastMoneyMatch.index).trim();
-  const qtyMatch = beforeTotal.match(/\b(\d{1,3})\s*$/);
+  // Require space (or string start) before the qty digits โ€” otherwise "$9.90" at the
+  // end of beforeTotal would match its own trailing "90" as the qty.
+  const qtyMatch = beforeTotal.match(/(?:^|\s)(\d{1,3})\s*$/);
   const qty = qtyMatch?.[1] || "1";
   const beforeQty = qtyMatch ? beforeTotal.slice(0, qtyMatch.index).trim() : beforeTotal;
   const unitMoneyMatches = getMoneyMatches(beforeQty);
@@ -737,9 +764,23 @@ function isPackageFragment(name) {
 }
 
 function isSummaryLine(line) {
-  return /\bsubtotal\b|sub\s*total|^rounding\b|^total\b|^cash\b|^change\b|^gst\b|^tax\b|served\s+by|receipt\s+number|loyalty|member|beep\s+and\s+flash|take\s+the\s+meal/i.test(
+  return /\bsubtotal\b|sub\s*total|^rounding\b|^total\b|^cash\b|^change\b|^gst\b|^tax\b|served\s+by|receipt\s+number|loyalty|member/i.test(
     String(line || "")
   );
+}
+
+// Strip non-product noise from a continuation/prefix string before appending it to
+// a product name. Handles pager messages ("When beep and flash") and brand-logo
+// shards (leading runs of all-uppercase short tokens like "M", "YA", "ATCHA").
+function stripContinuationNoise(value) {
+  return String(value || "")
+    .replace(
+      /\b(?:please\s+take\s+the\s+meal|when\s+beep\s+and\s+flash|beep\s+and\s+flash|take\s+the\s+meal)\b/gi,
+      ""
+    )
+    .replace(/^(?:[A-Z]{1,5}\s+)+/, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
 }
 
 function isQuantityLine(line) {
@@ -750,7 +791,7 @@ function isQuantityLine(line) {
     /^\d+\s+x\b/i.test(value) ||
     /\beach\b/i.test(value) ||
     /@/.test(value) ||
-    /^[\d\s@xX$€£฿.,-]+$/.test(value)
+    /^[\d\s@xX$โฌยฃเธฟ.,-]+$/.test(value)
   );
 }
 
@@ -783,7 +824,7 @@ function hasMetadataTokens(line) {
 
 function isPriceOnlyLine(line) {
   const value = String(line || "").trim();
-  return getMoneyMatches(value).length > 0 && /^[^\p{L}]*[$€£฿]?\s*-?\d[\d,.]*[^\p{L}]*$/u.test(value);
+  return getMoneyMatches(value).length > 0 && /^[^\p{L}]*[$โฌยฃเธฟ]?\s*-?\d[\d,.]*[^\p{L}]*$/u.test(value);
 }
 
 function getRowsLayout(rows) {
@@ -1054,6 +1095,10 @@ function extractProductsFromRows(rows, skipWords) {
   let pendingNameParts = [];
   let pendingQty = null;
   let lastProduct = null;
+  // Only append continuation lines after a code-prefixed line item was seen, so
+  // receipts without code prefixes (where every line is a separate product) aren't
+  // affected โ€” their non-amount rows shouldn't be merged into the previous product.
+  let lastFromCodeLine = false;
   const layout = getRowsLayout(rows);
 
   for (const row of rows) {
@@ -1063,14 +1108,38 @@ function extractProductsFromRows(rows, skipWords) {
       continue;
     }
 
+    // If a code-prefixed line item is preceded by text on the same row, that prefix
+    // is usually the previous product's continuation (e.g. "Takeaway, No sugar] (Sf03) ...").
+    const codeMatchOnLine = line.match(/\([A-Za-z0-9]{2,}\)\s+/);
+    if (codeMatchOnLine && codeMatchOnLine.index > 0 && lastProduct && lastFromCodeLine) {
+      const prefix = stripContinuationNoise(cleanLineItemName(line.slice(0, codeMatchOnLine.index)));
+      if (prefix && prefix.length >= 2 && !isQuantityLine(prefix) && !isMetadataLine("", prefix)) {
+        lastProduct.name = `${lastProduct.name} ${prefix}`.trim();
+      }
+    }
+
     const codeLineProduct = parseCodeLineItem(line);
 
     if (codeLineProduct) {
       products.push(codeLineProduct);
       lastProduct = codeLineProduct;
+      lastFromCodeLine = true;
       pendingNameParts = [];
       pendingQty = null;
       continue;
+    }
+
+    // Non-code row with no amount and a recent code-line product โ’ treat as
+    // continuation of that product's name (e.g. "Matcha Straight [Ice," after "(M01) Single Origin").
+    if (lastFromCodeLine && lastProduct && pendingNameParts.length === 0) {
+      const priceInfoForContinuation = getRightAlignedMoney(row, layout);
+      if (!priceInfoForContinuation) {
+        const cleaned = stripContinuationNoise(cleanLineItemName(line));
+        if (cleaned && cleaned.length >= 2 && !isQuantityLine(cleaned) && !isMetadataLine("", cleaned)) {
+          lastProduct.name = `${lastProduct.name} ${cleaned}`.trim();
+          continue;
+        }
+      }
     }
 
     const priceInfo = getRightAlignedMoney(row, layout);
@@ -1117,6 +1186,7 @@ function extractProductsFromRows(rows, skipWords) {
     if (product) {
       products.push(product);
       lastProduct = product;
+      lastFromCodeLine = false;
       pendingNameParts = [];
       pendingQty = null;
       continue;
@@ -1180,7 +1250,7 @@ function shouldIgnoreRawTextLine(line, skipWords) {
     !value ||
     skipWords.test(value) ||
     isSummaryLine(value) ||
-    /^[$โฌยฃเธฟ]?$/.test(value)
+    /^[$เนยเธเธขเธเน€เธเธ]?$/.test(value)
   );
 }
 
@@ -1197,7 +1267,7 @@ function extractProductsFromTextBlocks(lines, skipWords) {
   // FIFO queue of products whose names were accumulated before their prices arrived
   // (OCR sometimes lists several product names in a row, then their prices afterwards)
   const deferredProducts = [];
-  // Once we hit a Total/Subtotal/GST line, we're past the product list — stop
+  // Once we hit a Total/Subtotal/GST line, we're past the product list โ€” stop
   // accumulating names or orphan prices so receipt footer text doesn't become a "product".
   let pastProductList = false;
 
@@ -1249,13 +1319,13 @@ function extractProductsFromTextBlocks(lines, skipWords) {
 
     if (qty && hasMetadata) {
       // OCR often reads "2 @" as "20" (the @ blends into a 0). When the line is
-      // "Qty 20" with no @ visible, strip the trailing 0 — same heuristic as the
+      // "Qty 20" with no @ visible, strip the trailing 0 โ€” same heuristic as the
       // standalone-digit case below.
       const hasAtSymbol = /@/.test(value);
       pendingQty = !hasAtSymbol && qty.length === 2 && qty.endsWith("0") ? qty.slice(0, 1) : qty;
     }
 
-    // Structured line item: "N x $UNIT = $TOTAL" — pair qty + total with the pending
+    // Structured line item: "N x $UNIT = $TOTAL" โ€” pair qty + total with the pending
     // name directly so the math expression doesn't end up inside the product name.
     const structuredMatch = value.match(
       /^(\d+(?:\.\d+)?)\s*[xX@]\s*\$?\d+(?:[.,]\d+)?\s*=\s*\$?(\d+(?:[.,]\d+)?)/
@@ -1357,6 +1427,10 @@ function extractProductsFromTextBlocks(lines, skipWords) {
         updateProductQuantityFromUnitPrice(lastProduct, pendingQty, amount);
         pendingQty = null;
         pendingUnitPrice = null;
+      } else if (lastProduct && Number(lastProduct.total) === amount) {
+        // Duplicate of the just-created product's total (price+qty+total displayed
+        // in separate columns, OCR returns each cell on its own line) — ignore so
+        // it doesn't get treated as an orphan price for the next product.
       } else {
         // Price with no pending names: save for the name fragments that follow
         pendingOrphanAmount = amount;
@@ -1394,13 +1468,13 @@ function extractProductsFromTextBlocks(lines, skipWords) {
 
     const part = cleanContinuationPart(value);
 
-    // Drop single-character OCR noise (A, T, ], *, #, /, etc.) — never legitimate product text.
+    // Drop single-character OCR noise (A, T, ], *, #, /, etc.) โ€” never legitimate product text.
     if (part && part.length >= 2 && !isQuantityLine(part) && !isMetadataLine("", part)) {
       if (
         pendingNameParts.length &&
         /^(?:Golden Circle|Coca Cola|WW |Essentials |Pocky |Haribo |Ingham's)/i.test(part)
       ) {
-        // Defer the previous product — its price will arrive in a later line and
+        // Defer the previous product โ€” its price will arrive in a later line and
         // get paired via deferredProducts FIFO when amountOnly fires.
         deferredProducts.push({
           nameParts: pendingNameParts,
@@ -1428,7 +1502,7 @@ function extractProductsFromTextBlocks(lines, skipWords) {
     }
   }
 
-  // Any deferred products that never got their price → emit with 0 so user can edit
+  // Any deferred products that never got their price โ’ emit with 0 so user can edit
   for (const deferred of deferredProducts) {
     const product = createProduct(joinProductParts(deferred.nameParts), deferred.qty, 0);
     if (product) {
@@ -1505,7 +1579,7 @@ function extractProducts(lines, skipWords) {
 
   for (let index = 0; index < lines.length; index += 1) {
     const line = lines[index];
-    const sameLineMatch = line.match(/^(.+?)\s+([$€£฿]?\s*\d[\d,.]*[.,]\d{2})$/);
+    const sameLineMatch = line.match(/^(.+?)\s+([$โฌยฃเธฟ]?\s*\d[\d,.]*[.,]\d{2})$/);
 
     if (sameLineMatch && !skipWords.test(line)) {
       const name = cleanProductName(sameLineMatch[1]);

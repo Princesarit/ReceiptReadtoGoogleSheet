@@ -1,0 +1,150 @@
+{
+  "file": "KEN.png",
+  "results": {
+    "ocr": {
+      "status": 200,
+      "ok": true,
+      "ms": 20592,
+      "body": {
+        "success": true,
+        "engine": "paddleocr",
+        "message": "Receipt read with PaddleOCR. Review the preview before submitting.",
+        "receipt": {
+          "products": [
+            {
+              "name": "LIVE LOBSTER",
+              "qty": "1",
+              "total": 188
+            },
+            {
+              "name": "PIPES",
+              "qty": "0.698",
+              "total": 68.4
+            },
+            {
+              "name": "FRIED VERMICELLI",
+              "qty": "1",
+              "total": 28
+            },
+            {
+              "name": "BARRAMUNDI",
+              "qty": "1",
+              "total": 78
+            },
+            {
+              "name": "Chinese Tea /HOT WATER",
+              "qty": "5",
+              "total": 15
+            },
+            {
+              "name": "DIM SIM LARGE",
+              "qty": "1",
+              "total": 11.8
+            },
+            {
+              "name": "Ex Large",
+              "qty": "4",
+              "total": 51.2
+            },
+            {
+              "name": "SPECIAL",
+              "qty": "3",
+              "total": 41.4
+            }
+          ],
+          "total": 481.8,
+          "status": "Paid",
+          "dueDate": null,
+          "paymentType": "Cash"
+        },
+        "sheetPreview": {
+          "headers": [
+            "Date",
+            "Product",
+            "Qty",
+            "Price",
+            "Status",
+            "Due Date",
+            "Payment_Type"
+          ],
+          "rows": [
+            [
+              "Created when submitted",
+              "LIVE LOBSTER",
+              "1",
+              188,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "PIPES",
+              "0.698",
+              68.4,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "FRIED VERMICELLI",
+              "1",
+              28,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "BARRAMUNDI",
+              "1",
+              78,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "Chinese Tea /HOT WATER",
+              "5",
+              15,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "DIM SIM LARGE",
+              "1",
+              11.8,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "Ex Large",
+              "4",
+              51.2,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "SPECIAL",
+              "3",
+              41.4,
+              "Paid",
+              "",
+              "Cash"
+            ]
+          ],
+          "total": 481.8
+        },
+        "rawText": "BILL\nNT\n07/05/2026 12:28:38\nPeople: 5\nYiea\nTable:\n4\nDESCRIPTION\nINS\nAMOUNT\n/\nLIVE LOBSTER\n07\n1 X $188.00 = $188.00\n*\nPIPES\nT\n] \n0.698 X $98.00 = $68.40\nA\nFRIED VERMICELLI\n07\n1 X $28.00 = $28.00\nBARRAMUNDI\n1 X $78.00 = $78.00\nChinese Tea /HOT WATER\nA\n5 X $3.00 = $15.00\nDIM SIM LARGE\n#\n1 x $11.80 = $11.80\nEx Large\n45\n4 X $12.80 = $51.20\nSPECIAL\n3 X $13.80 = $41.40\nTotal:\nGST Included In Total:\n$481.80\nV\nTHANK YOU FOR VISITING\n$43.80\nPLEASE CALL AGAIN\nDELUXE\nME\nDRINKS\nLEGALTENDER THROUCK\nSECRETARY TO THE TREA\nGOVERNOR RESERVE BA\nAUST\nPhhplo\nJhe C.S\nH Q"
+      }
+    }
+  }
+}

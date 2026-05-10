@@ -1,0 +1,13 @@
+{
+  "products": [
+    { "product": "LIVE LOBSTER", "qty": 1, "price": 188 },
+    { "product": "PIPES", "qty": 0.698, "price": 68.4 },
+    { "product": "FRIED VERMICELLI", "qty": 1, "price": 28 },
+    { "product": "BARRAMUNDI", "qty": 1, "price": 78 },
+    { "product": "Chinese Tea /HOT WATER", "qty": 5, "price": 15 },
+    { "product": "DIM SIM LARGE", "qty": 1, "price": 11.8 },
+    { "product": "Ex Large", "qty": 4, "price": 51.2 },
+    { "product": "SPECIAL", "qty": 3, "price": 41.4 }
+  ],
+  "total": 481.8
+}

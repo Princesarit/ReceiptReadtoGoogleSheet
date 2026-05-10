@@ -1,0 +1,45 @@
+{
+    "products":  [
+                     {
+                         "product":  "GCB FROZEN CHA-OM LEAF 150G",
+                         "qty":  1,
+                         "price":  3.7
+                     },
+                     {
+                         "product":  "P*KN GILLED BANANA W/ COCONUT SCE",
+                         "qty":  1,
+                         "price":  15
+                     },
+                     {
+                         "product":  "LV YINSI RICE VERMICELLI 300G S",
+                         "qty":  3,
+                         "price":  6.3
+                     },
+                     {
+                         "product":  "OCHA DRIED RED COTTON FLOWER80G",
+                         "qty":  1,
+                         "price":  3.99
+                     },
+                     {
+                         "product":  "SCALE SHRIMP PASTE 95G",
+                         "qty":  1,
+                         "price":  1.99
+                     },
+                     {
+                         "product":  "THAI BOY COOKING TAMARIND 375G",
+                         "qty":  1,
+                         "price":  3.5
+                     },
+                     {
+                         "product":  "TONG DRIED BUTTERFLY PEA 80G",
+                         "qty":  1,
+                         "price":  7.2
+                     },
+                     {
+                         "product":  "TOUR NOAW",
+                         "qty":  1,
+                         "price":  4.99
+                     }
+                 ],
+    "total":  46.65
+}
