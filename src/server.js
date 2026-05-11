@@ -580,7 +580,11 @@ function buildSheetPreview(expense) {
 }
 
 function parseMoney(value) {
-  const matches = String(value || "").match(/-?\d[\d,]*(?:[.,]\d{1,2})?/g);
+  // OCR sometimes drops the decimal point: "$135.99" arrives as "$135 99".
+  // Repair that pattern (currency-or-digit then space then exactly 2 digits) so
+  // we don't grab the trailing fragment as the amount.
+  const str = String(value || "").replace(/([$€£฿]?\s*\d[\d,]*)\s+(\d{2}\b)/g, "$1.$2");
+  const matches = str.match(/-?\d[\d,]*(?:[.,]\d{1,2})?/g);
 
   if (!matches?.length) {
     return null;
@@ -608,9 +612,20 @@ function normalizeOcrText(text) {
 }
 
 function findTotal(lines) {
-  const totalWords = /^(grand\s*)?total\b|^total\s*to\s*pay\b|^amount\s*due\b|^balance\b|^net\s*amount\b/i;
+  const totalWords = /^(grand\s*)?total\b|^total\s*to\s*pay\b|^amount\s*due\b|^balance\b|^net\s*amount\b|^takeaway\s+total\b|^take[-\s]?out\s+total\b/i;
   // ignoredWords: skip summary/tax lines and "TOTAL includes GST" style lines
-  const ignoredWords = /subtotal|sub\s*total|tax|vat|change|cash|payment\s*per\s*guest|\bgst\b/i;
+  const ignoredWords = /subtotal|sub\s*total|tax|vat|change|cash|payment\s*per\s*guest|\bgst\b|\bdiscounts?\b|\bsavings?\b/i;
+  const found = scanForTotal(lines, totalWords, ignoredWords);
+  if (found !== null) return found;
+
+  // Fallback: some receipts (e.g. Watsons) only label the bottom line as SUBTOTAL.
+  // Use it only when no TOTAL was found at all.
+  const subtotalWords = /^\d*\s*subtotal\b|^sub\s*total\b/i;
+  const subtotalIgnored = /tax|vat|change|cash|\bgst\b/i;
+  return scanForTotal(lines, subtotalWords, subtotalIgnored);
+}
+
+function scanForTotal(lines, totalWords, ignoredWords) {
 
   for (let index = lines.length - 1; index >= 0; index -= 1) {
     const line = lines[index];
@@ -642,37 +657,40 @@ function findTotal(lines) {
         return amount;
       }
 
-      // Check previous line first: tilted receipts emit the amount before the label in
-      // Y-order. Only accept it if the prev line is price-only โ€” otherwise we may pull
-      // the last product's structured line (e.g. "3 X $13.80 = $41.40") as the total.
+      // Find prev candidate (tilted receipt — amount appears before label in Y-order).
       const prevLine = index > 0 ? lines[index - 1] : null;
-      if (prevLine && isPriceOnlyLine(prevLine)) {
+      let prevAmount = null;
+      if (prevLine && isPriceOnlyLine(prevLine) && /[.,]\d/.test(prevLine)) {
         const prevStrictMatches = getMoneyMatches(prevLine);
-        const prevAmount = prevStrictMatches.length
+        const pv = prevStrictMatches.length
           ? parseMoney(prevStrictMatches[prevStrictMatches.length - 1][0])
           : null;
-
-        if (prevAmount !== null) {
-          return prevAmount;
-        }
+        if (pv !== null && pv > 0) prevAmount = pv;
       }
 
-      // Look forward, skipping interim ignored labels like "GST Included In Total:"
-      // so we land on the actual amount line ($481.80) rather than its preamble.
+      // Find next-line candidate (standard layout — amount comes after label).
+      // Reject negative values (discount lines) and skip interim ignored labels.
+      let nextAmount = null;
       for (let lookAhead = 1; lookAhead <= 3; lookAhead += 1) {
         const candidate = lines[index + lookAhead];
         if (!candidate) break;
         if (ignoredWords.test(candidate)) continue;
-
-        const candidateMatches = getMoneyMatches(candidate);
-        const candidateAmount = candidateMatches.length
-          ? parseMoney(candidateMatches[candidateMatches.length - 1][0])
-          : null;
-
-        if (candidateAmount !== null) {
-          return candidateAmount;
+        const cm = getMoneyMatches(candidate);
+        const ca = cm.length ? parseMoney(cm[cm.length - 1][0]) : null;
+        if (ca !== null && ca > 0) {
+          nextAmount = ca;
+          break;
         }
       }
+
+      // When both sides have valid candidates, the larger one is usually the receipt
+      // total (small prev value tends to be the last product's line price). Otherwise
+      // prefer prev (matches tilted receipts where the total is read before its label).
+      if (prevAmount !== null && nextAmount !== null && nextAmount > prevAmount * 1.5) {
+        return nextAmount;
+      }
+      if (prevAmount !== null) return prevAmount;
+      if (nextAmount !== null) return nextAmount;
     }
   }
 
@@ -687,6 +705,8 @@ function cleanProductName(line) {
   return String(line || "")
     .replace(/^[#^*\s]+/g, "")
     .replace(/^[AH]{1,2}(?=Coca\b|Pocky\b|M&Ms\b)/i, "")
+    // Strip leading SKU codes: 4+ digits followed by space (Watsons, supermarket POS)
+    .replace(/^\d{4,}\s+/, "")
     .replace(/[#^*]+/g, "")
     .replace(/[$โฌยฃเธฟ]\s*$/g, "")
     .replace(/\s{2,}/g, " ")
@@ -699,6 +719,8 @@ function cleanLineItemName(line) {
     .replace(/\b[a-z]\s+(?=\d+\s*x)/gi, "")
     .replace(/^\d+\s+(?=\d+\s*(?:pk|x))/i, "")
     .replace(/\s+[({[]?P[)}\]]?\s*$/i, "")
+    // Strip "Why Pay $X.XX?" promotional tag (Chemist Warehouse style)
+    .replace(/\s*\bwhy\s+pay\s+\S+\s*\??/gi, "")
     .replace(/\s{2,}/g, " ")
     .trim();
 }
@@ -755,16 +777,19 @@ function shouldJoinPendingName(pendingName, name) {
 
 function isPackageFragment(name) {
   const value = String(name || "").trim();
-  // Strings with more than 3 words are product names, not pure package descriptors
-  // (guards against reversed OCR fragments like "95G SCALE SHRIMP PASTE")
-  if (value.split(/\s+/).length > 3) {
+  // Multi-word strings are product names, not pure package descriptors. Guards both
+  // reversed OCR fragments like "95G SCALE SHRIMP PASTE" and product names that
+  // happen to start with a quantity token like "1x Chick N'Roll".
+  if (value.split(/\s+/).length >= 2) {
     return false;
   }
   return /^[a-z]?\s*\d+\s*x/i.test(value) || /^\d+\s*(?:pk|x|ml|g|kg|l)\b/i.test(value);
 }
 
 function isSummaryLine(line) {
-  return /\bsubtotal\b|sub\s*total|^rounding\b|^total\b|^cash\b|^change\b|^gst\b|^tax\b|served\s+by|receipt\s+number|loyalty|member/i.test(
+  // Note: do NOT match `^tax\b` — many receipts open with "TAX INVOICE" / "TAX ID"
+  // at the very top, which would cut off the entire product list.
+  return /\bsubtotal\b|sub\s*total|^rounding\b|^total\b|^cash\b|^change\b|^gst\b|served\s+by|receipt\s+number|loyalty|member|^\d+\s+items?\b/i.test(
     String(line || "")
   );
 }
@@ -871,6 +896,9 @@ function getRightAlignedMoney(row, layout) {
       }))
       .filter((candidate) => candidate.amount !== null)
       .filter((candidate) => candidate.item.x1 >= layout.rightPriceStart)
+      // Require currency symbol or decimal — otherwise tax markers ("T") and bare
+      // qty digits ("1") get picked as the right-aligned price.
+      .filter((candidate) => /[$€£฿]|\d[.,]\d/.test(candidate.item.text))
       .sort((left, right) => right.item.x1 - left.item.x1);
     const [candidate] = candidates;
 
@@ -976,7 +1004,10 @@ function normalizeParsedProducts(products, receiptTotal) {
       }
 
       const amount = Number(product.total);
-      return !Number.isFinite(amount) || amount < receiptTotal || productCount === 1;
+      // Keep amounts <= total (single-item receipts have amount == total).
+      // Phantom "TOTAL" lines with name matching summary keywords are already
+      // filtered by the earlier isSummaryLine check.
+      return !Number.isFinite(amount) || amount <= receiptTotal || productCount === 1;
     });
 }
 
@@ -1081,9 +1112,17 @@ function getCandidateRows(lines, entries) {
   const dateIndex = rows.findIndex((row) =>
     /\d{1,2}[-/]\d{1,2}[-/]\d{2,4}|\bdate\b/i.test(row.text)
   );
-  const startIndex = dateIndex >= 0 ? dateIndex + 1 : 0;
+  // Only use date as a "skip header" boundary when it's near the top — some
+  // receipts (e.g. Chemist Warehouse) print Date/Time in the payment block at
+  // the very bottom, which would otherwise truncate the entire product list.
+  const startIndex = dateIndex >= 0 && dateIndex < rows.length / 2 ? dateIndex + 1 : 0;
+  // Boundary uses STRICTER terminal markers than isSummaryLine (which also matches
+  // SUBTOTAL). Some receipts have a product line *after* an intermediate SUBTOTAL
+  // (e.g. redemption rows on Watsons), so we should keep going until we hit a real
+  // tail-end marker like CASH/CHANGE/CARD/GST or "VAT RECEIPT SUMMARY".
+  const terminalMarker = /^cash\b|^change\b|^card\b|^gst\b|^trans?fer\b|^eft\b|^total\s+discounts?\b|^vat\s+receipt\b|receipt\s+number|you\s+have\s+saved|^promptpay\b|^net\s+total\b|^take[-\s]?out\s+total|^takeaway\s+total\b|^orki?\b/i;
   const summaryIndex = rows.findIndex(
-    (row, index) => index >= startIndex && isSummaryLine(row.text)
+    (row, index) => index >= startIndex && terminalMarker.test(row.text)
   );
   const endIndex = summaryIndex >= 0 ? summaryIndex : rows.length;
 
@@ -1105,6 +1144,14 @@ function extractProductsFromRows(rows, skipWords) {
     const line = String(row.text || "").trim();
 
     if (!line || skipWords.test(line) || isSummaryLine(line)) {
+      continue;
+    }
+
+    // "(N x $UNIT)" — qty/unit-pricing line that belongs to the previous product
+    // (e.g. "(2 x $85.00)" under "Egg Tart $170.00"). Update qty, don't make a product.
+    const qtyOnlyMatch = line.match(/^\(\s*(\d+)\s*x\s*\$?[\d.,]+\s*\)/i);
+    if (qtyOnlyMatch && lastProduct) {
+      lastProduct.qty = qtyOnlyMatch[1];
       continue;
     }
 
@@ -1164,6 +1211,43 @@ function extractProductsFromRows(rows, skipWords) {
     }
 
     if (amount === null) {
+      // After a priced product, a follow-up row that's "<qty> <name>" with no price
+      // is usually a bundle/value-meal sub-item (e.g. "1 M French Fries - 3WK").
+      // Capture as a $0 product so it shows up in the parsed list.
+      if (lastProduct && !metadataLine) {
+        const subItemMatch = line.match(/^(\d+)\s+(\S.+)$/);
+        if (subItemMatch) {
+          const subName = cleanLineItemName(subItemMatch[2]);
+          // Skip generic count words like "Item(s)" which are summary labels, not products
+          if (subName && subName.length >= 2 && !/^items?\b|^item\(s\)$/i.test(subName)) {
+            const subProduct = createProduct(subName, subItemMatch[1], 0);
+            if (subProduct) {
+              products.push(subProduct);
+              lastProduct = subProduct;
+              lastFromCodeLine = false;
+              continue;
+            }
+          }
+        }
+
+        // Coles-style product line "*% NAME ... .800" where OCR mangled the price.
+        // Capture the name as $0 — reconcile may later fill in the missing amount.
+        if (/^[*%]+\s*\S/.test(line)) {
+          const cleanedName = cleanLineItemName(line.replace(/^[*%\s]+/, ""))
+            .replace(/\s+[\d.,]+\s*$/, "")
+            .trim();
+          if (cleanedName.length >= 3) {
+            const product = createProduct(cleanedName, "1", 0);
+            if (product) {
+              products.push(product);
+              lastProduct = product;
+              lastFromCodeLine = false;
+              continue;
+            }
+          }
+        }
+      }
+
       if (!metadataLine) {
         const name = cleanLineItemName(line);
 
@@ -1175,9 +1259,17 @@ function extractProductsFromRows(rows, skipWords) {
       continue;
     }
 
-    const nameParts = [...pendingNameParts];
+    // When a row has substantial leftText alongside its own amount, treat it as
+    // self-contained — drop accumulated pendingNameParts which is usually leftover
+    // header noise (store name, column labels) that couldn't be filtered individually.
+    const isSelfContained =
+      leftText &&
+      leftText.length >= 3 &&
+      !metadataLine &&
+      !isPackageFragment(leftText);
+    const nameParts = isSelfContained ? [leftText] : [...pendingNameParts];
 
-    if (leftText && (!metadataLine || isPackageFragment(leftText))) {
+    if (!isSelfContained && leftText && (!metadataLine || isPackageFragment(leftText))) {
       nameParts.push(leftText);
     }
 
@@ -1274,7 +1366,7 @@ function extractProductsFromTextBlocks(lines, skipWords) {
   for (const line of lines) {
     const value = String(line || "").trim();
 
-    if (/^(?:sub\s*)?total\b|^gst\b|^cash\b|^change\b|^balance\b|^amount\s+due\b/i.test(value)) {
+    if (/^(?:sub\s*)?total\b|^gst\b|^cash\b|^change\b|^balance\b|^amount\s+due\b|^takeaway\s+total\b|^take[-\s]?out\s+total\b|^orki?\b/i.test(value)) {
       pastProductList = true;
     }
 
@@ -1529,6 +1621,20 @@ function productQualityScore(product) {
     score -= 35;
   }
 
+  // Suspicious patterns from merged header noise:
+  //   - timestamp inside the name (e.g. "13:08:02")
+  //   - "Word:" prefix like "Host:", "Date:", "Cashier:"
+  //   - very long name (typically header + product merged)
+  if (/\d{1,2}:\d{2}/.test(name)) {
+    score -= 60;
+  }
+  if (/^[A-Za-z]\w*:\s/.test(name)) {
+    score -= 60;
+  }
+  if (name.length > 50) {
+    score -= 60;
+  }
+
   return score;
 }
 
@@ -1628,14 +1734,95 @@ function getLineItemCandidates(lines) {
   return lines.slice(startIndex, endIndex);
 }
 
+// Use the receipt total as a checksum to repair common OCR price errors.
+//   1) `.99` misread as `.00` on faded thermal receipts (Chemist Warehouse style).
+//   2) Currency symbol (e.g. ฿ Baht) misread as a leading "8" digit, inflating the
+//      number by ~8000 (e.g. "฿170.00" → "8170.00").
+function reconcileSumAgainstTotal(products, total) {
+  if (total === null || total === undefined || !Number.isFinite(Number(total))) {
+    return products;
+  }
+  if (!Array.isArray(products) || products.length === 0) {
+    return products;
+  }
+
+  const cents = (n) => Math.round(Number(n) * 100);
+  const targetCents = cents(total);
+
+  // Pass 1: when a single product is suspiciously larger than the receipt total,
+  // try two common OCR repairs and commit whichever makes the sum land on total:
+  //   (a) strip a misread currency-symbol leading digit ("฿170" read as "8170")
+  //   (b) divide by 100 ("$21.99" read as "$2199" with the decimal point dropped)
+  const oversized = products
+    .map((p, idx) => ({ idx, cents: cents(p.total || 0) }))
+    .filter((c) => c.cents > targetCents && String(Math.abs(c.cents)).length >= 5);
+  if (oversized.length === 1) {
+    const { idx, cents: bigCents } = oversized[0];
+    const sign = Math.sign(bigCents) || 1;
+    const text = String(Math.round(Math.abs(bigCents)));
+
+    const tryFix = (newTotal) => {
+      const candidate = products.map((p, i) => (i === idx ? { ...p, total: newTotal } : p));
+      const newSum = candidate.reduce((acc, p) => acc + cents(p.total || 0), 0);
+      return Math.abs(newSum - targetCents) < 1 ? candidate : null;
+    };
+
+    let fixed = null;
+    // (a) strip leading digit
+    if (text.length >= 4) {
+      fixed = tryFix((Number(text.slice(1)) * sign) / 100);
+    }
+    // (b) restore missing decimal point — e.g. "2199" → 21.99
+    if (!fixed) {
+      fixed = tryFix((Number(text) * sign) / 10000);
+    }
+    if (fixed) products = fixed;
+  }
+
+  const sumCents = products.reduce((acc, p) => acc + cents(p.total || 0), 0);
+  const diffCents = targetCents - sumCents;
+
+  if (Math.abs(diffCents) < 1) return products;
+
+  // Pass 2: upgrade .00 → .99 endings if doing so for every .00-candidate makes
+  // the sum match the total exactly. Skip ambiguous partial cases.
+  const candidates = products
+    .map((p, idx) => ({ idx, cents: cents(p.total || 0) }))
+    .filter((c) => c.cents % 100 === 0);
+
+  if (candidates.length > 0 && diffCents === candidates.length * 99) {
+    return products.map((p, idx) => {
+      const isCandidate = candidates.some((c) => c.idx === idx);
+      return isCandidate ? { ...p, total: (cents(p.total) + 99) / 100 } : p;
+    });
+  }
+
+  // Pass 3: if exactly one product has price = 0 and the diff is positive, that
+  // product is the OCR-mangled item — assign the missing amount to it.
+  const zeroPriced = products
+    .map((p, idx) => ({ idx, cents: cents(p.total || 0) }))
+    .filter((c) => c.cents === 0);
+  if (zeroPriced.length === 1 && diffCents > 0) {
+    const { idx } = zeroPriced[0];
+    return products.map((p, i) => (i === idx ? { ...p, total: diffCents / 100 } : p));
+  }
+
+  return products;
+}
+
 function parseOcrExpense(rawText, entries = []) {
   const text = normalizeOcrText(rawText);
   const lines = text
     .split("\n")
     .map((line) => line.trim())
     .filter(Boolean);
-  const skipWords = /address|tel|date|receipt|table|covers?|server|total|subtotal|sub\s*total|rounding|tax|vat|gst|change|cash|payment|paid|balance|thank|service|phone|email|reg|master|member|loyalty/i;
-  const total = findTotal(lines);
+  const skipWords = /address|tel|date|receipt|table|covers?|server|total|subtotal|sub\s*total|rounding|tax|vat|gst|change|cash|payment|paid|balance|thank|service|phone|email|reg|master|member|loyalty|\bwatsons?\b|\bwoolworths\b|qr-*\s*code|vat\s+no|^pos\s|tax\s*id|invoice\s*number|opening\s+balance|loyalty|^supervisor|duplicate|^statement$|^why\s+pay/i;
+  // Try the raw lines first (each OCR entry on its own line) so "Total:" gets
+  // matched cleanly without bleed from adjacent "GST Included In Total:" labels.
+  // Fall back to row-joined text for receipts that split labels and amounts
+  // across separate OCR lines (e.g. "Takeaway Total" + "78.00").
+  const rowJoinedLines = getOcrRows(entries).map((row) => row.text).filter(Boolean);
+  const total = findTotal(lines) ?? (rowJoinedLines.length ? findTotal(rowJoinedLines) : null);
   const rowProducts = extractProductsFromRows(getCandidateRows(lines, entries), skipWords);
   const textProducts = extractProductsFromTextBlocks(getCandidateTextLines(lines), skipWords);
   let products = chooseBestParsedProducts(rowProducts, textProducts);
@@ -1647,6 +1834,9 @@ function parseOcrExpense(rawText, entries = []) {
   if (!products.length) {
     products = extractProducts(lines, skipWords);
   }
+  // Reconcile BEFORE the receipt-total filter so Baht-misread inflated prices
+  // get corrected before normalize would discard them as "larger than total".
+  products = reconcileSumAgainstTotal(products, total);
   products = normalizeParsedProducts(products, total);
 
   return expenseSchema.parse({
@@ -1866,6 +2056,7 @@ app.post("/api/receipts/ocr", requireAuth, uploadReceipt, async (req, res) => {
 
     return res.json({
       success: true,
+      _debugEntries: ocrResult.entries,
       engine: "paddleocr",
       message: "Receipt read with PaddleOCR. Review the preview before submitting.",
       receipt: parsedExpense,

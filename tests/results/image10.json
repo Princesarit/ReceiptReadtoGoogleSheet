@@ -1,0 +1,451 @@
+{
+  "file": "image10.jpg",
+  "results": {
+    "ocr": {
+      "status": 200,
+      "ok": true,
+      "ms": 12480,
+      "body": {
+        "success": true,
+        "_debugEntries": [
+          {
+            "text": "watsons",
+            "box": [
+              306,
+              279,
+              658,
+              343
+            ]
+          },
+          {
+            "text": "POS (1)E030280002A0093",
+            "box": [
+              340,
+              377,
+              669,
+              417
+            ]
+          },
+          {
+            "text": "TAX IDH 0105539086260 (VAT INCLUDED)",
+            "box": [
+              234,
+              414,
+              738,
+              452
+            ]
+          },
+          {
+            "text": "WATSONS Lotus's BANG",
+            "box": [
+              325,
+              446,
+              616,
+              488
+            ]
+          },
+          {
+            "text": "RECEIPT / TAX INVOICE (ABB)",
+            "box": [
+              287,
+              484,
+              672,
+              526
+            ]
+          },
+          {
+            "text": "301651 Miseenscene Perfec",
+            "box": [
+              211,
+              561,
+              558,
+              600
+            ]
+          },
+          {
+            "text": "399.00",
+            "box": [
+              623,
+              559,
+              717,
+              596
+            ]
+          },
+          {
+            "text": "1",
+            "box": [
+              754,
+              561,
+              774,
+              593
+            ]
+          },
+          {
+            "text": "301651 Miseenscene Perfec",
+            "box": [
+              211,
+              597,
+              559,
+              637
+            ]
+          },
+          {
+            "text": "399.00",
+            "box": [
+              624,
+              597,
+              717,
+              634
+            ]
+          },
+          {
+            "text": "T",
+            "box": [
+              754,
+              599,
+              774,
+              632
+            ]
+          },
+          {
+            "text": "Limited item 2nd pie",
+            "box": [
+              251,
+              637,
+              532,
+              674
+            ]
+          },
+          {
+            "text": "-398.00",
+            "box": [
+              610,
+              634,
+              719,
+              673
+            ]
+          },
+          {
+            "text": "2 SUBTOTAL",
+            "box": [
+              239,
+              710,
+              380,
+              746
+            ]
+          },
+          {
+            "text": "400.00",
+            "box": [
+              625,
+              711,
+              719,
+              749
+            ]
+          },
+          {
+            "text": "QR--Code",
+            "box": [
+              266,
+              744,
+              368,
+              783
+            ]
+          },
+          {
+            "text": "400.00",
+            "box": [
+              626,
+              750,
+              718,
+              787
+            ]
+          },
+          {
+            "text": "CHANGE",
+            "box": [
+              267,
+              780,
+              354,
+              821
+            ]
+          },
+          {
+            "text": "0.00",
+            "box": [
+              653,
+              787,
+              719,
+              826
+            ]
+          },
+          {
+            "text": "VAT RECEIPT SUMMARY",
+            "box": [
+              346,
+              856,
+              617,
+              900
+            ]
+          },
+          {
+            "text": "Rate",
+            "box": [
+              213,
+              892,
+              276,
+              930
+            ]
+          },
+          {
+            "text": "NET",
+            "box": [
+              360,
+              894,
+              415,
+              934
+            ]
+          },
+          {
+            "text": "VAT",
+            "box": [
+              495,
+              898,
+              549,
+              938
+            ]
+          },
+          {
+            "text": "TOTAL",
+            "box": [
+              640,
+              901,
+              720,
+              942
+            ]
+          },
+          {
+            "text": "T 7.00%",
+            "box": [
+              210,
+              927,
+              327,
+              970
+            ]
+          },
+          {
+            "text": "373.83",
+            "box": [
+              359,
+              933,
+              451,
+              972
+            ]
+          },
+          {
+            "text": "26.17",
+            "box": [
+              493,
+              936,
+              576,
+              977
+            ]
+          },
+          {
+            "text": "400.00",
+            "box": [
+              639,
+              938,
+              735,
+              981
+            ]
+          },
+          {
+            "text": "VAT NO. 0105539086260",
+            "box": [
+              315,
+              1007,
+              618,
+              1054
+            ]
+          },
+          {
+            "text": "YOUR SAVINGS TODAY!",
+            "box": [
+              206,
+              1080,
+              475,
+              1126
+            ]
+          },
+          {
+            "text": "TOTAL DISCOUNTS",
+            "box": [
+              233,
+              1156,
+              451,
+              1197
+            ]
+          },
+          {
+            "text": "1",
+            "box": [
+              558,
+              1166,
+              579,
+              1195
+            ]
+          },
+          {
+            "text": "-398.00",
+            "box": [
+              609,
+              1162,
+              719,
+              1198
+            ]
+          },
+          {
+            "text": "**",
+            "box": [
+              208,
+              1234,
+              772,
+              1264
+            ]
+          },
+          {
+            "text": "STATEMENT",
+            "box": [
+              388,
+              1267,
+              520,
+              1306
+            ]
+          },
+          {
+            "text": "Loyalty acc.number",
+            "box": [
+              223,
+              1305,
+              478,
+              1344
+            ]
+          },
+          {
+            "text": "9930956790****",
+            "box": [
+              528,
+              1293,
+              729,
+              1334
+            ]
+          },
+          {
+            "text": "468",
+            "box": [
+              636,
+              1325,
+              690,
+              1361
+            ]
+          },
+          {
+            "text": "Opening Balance",
+            "box": [
+              221,
+              1335,
+              439,
+              1379
+            ]
+          },
+          {
+            "text": "16",
+            "box": [
+              652,
+              1357,
+              687,
+              1387
+            ]
+          },
+          {
+            "text": "Farned value",
+            "box": [
+              224,
+              1370,
+              394,
+              1401
+            ]
+          }
+        ],
+        "engine": "paddleocr",
+        "message": "Receipt read with PaddleOCR. Review the preview before submitting.",
+        "receipt": {
+          "products": [
+            {
+              "name": "Miseenscene Perfec",
+              "qty": "1",
+              "total": 399
+            },
+            {
+              "name": "Miseenscene Perfec",
+              "qty": "1",
+              "total": 399
+            },
+            {
+              "name": "Limited item 2nd pie",
+              "qty": "1",
+              "total": -398
+            }
+          ],
+          "total": 400,
+          "status": "Paid",
+          "dueDate": null,
+          "paymentType": "Cash"
+        },
+        "sheetPreview": {
+          "headers": [
+            "Date",
+            "Product",
+            "Qty",
+            "Price",
+            "Status",
+            "Due Date",
+            "Payment_Type"
+          ],
+          "rows": [
+            [
+              "Created when submitted",
+              "Miseenscene Perfec",
+              "1",
+              399,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "Miseenscene Perfec",
+              "1",
+              399,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "Limited item 2nd pie",
+              "1",
+              -398,
+              "Paid",
+              "",
+              "Cash"
+            ]
+          ],
+          "total": 400
+        },
+        "rawText": "watsons\nPOS (1)E030280002A0093\nTAX IDH 0105539086260 (VAT INCLUDED)\nWATSONS Lotus's BANG\nRECEIPT / TAX INVOICE (ABB)\n301651 Miseenscene Perfec\n399.00\n1\n301651 Miseenscene Perfec\n399.00\nT\nLimited item 2nd pie\n-398.00\n2 SUBTOTAL\n400.00\nQR--Code\n400.00\nCHANGE\n0.00\nVAT RECEIPT SUMMARY\nRate\nNET\nVAT\nTOTAL\nT 7.00%\n373.83\n26.17\n400.00\nVAT NO. 0105539086260\nYOUR SAVINGS TODAY!\nTOTAL DISCOUNTS\n1\n-398.00\n**\nSTATEMENT\nLoyalty acc.number\n9930956790****\n468\nOpening Balance\n16\nFarned value"
+      }
+    }
+  }
+}

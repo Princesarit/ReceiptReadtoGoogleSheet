@@ -1,0 +1,343 @@
+{
+  "file": "image6.jpg",
+  "results": {
+    "ocr": {
+      "status": 200,
+      "ok": true,
+      "ms": 12452,
+      "body": {
+        "success": true,
+        "_debugEntries": [
+          {
+            "text": "2692",
+            "box": [
+              452,
+              273,
+              568,
+              327
+            ]
+          },
+          {
+            "text": "McTHaI CO.,LTD.",
+            "box": [
+              399,
+              445,
+              601,
+              482
+            ]
+          },
+          {
+            "text": "TAX ID:0105526048623",
+            "box": [
+              360,
+              476,
+              628,
+              514
+            ]
+          },
+          {
+            "text": "VAT INCLUDED TAX INVOICE(ABB)",
+            "box": [
+              296,
+              509,
+              703,
+              546
+            ]
+          },
+          {
+            "text": "50272 TheMall Thapra Tel. 08-4320-4643",
+            "box": [
+              243,
+              573,
+              756,
+              611
+            ]
+          },
+          {
+            "text": "POS Serial No: E030300002A1103",
+            "box": [
+              242,
+              606,
+              637,
+              641
+            ]
+          },
+          {
+            "text": "POS Type: Cso",
+            "box": [
+              242,
+              638,
+              421,
+              672
+            ]
+          },
+          {
+            "text": "Crew id 5 - PloypailinL",
+            "box": [
+              257,
+              671,
+              558,
+              702
+            ]
+          },
+          {
+            "text": "MFY Side 1",
+            "box": [
+              440,
+              765,
+              571,
+              797
+            ]
+          },
+          {
+            "text": "INV# 502722600009878",
+            "box": [
+              244,
+              825,
+              509,
+              859
+            ]
+          },
+          {
+            "text": "ORD #92 -CS0 #26- 10/05/2026 13:04:49",
+            "box": [
+              243,
+              887,
+              723,
+              923
+            ]
+          },
+          {
+            "text": "QTY ITEM",
+            "box": [
+              241,
+              921,
+              355,
+              955
+            ]
+          },
+          {
+            "text": "TOTAL",
+            "box": [
+              678,
+              918,
+              750,
+              951
+            ]
+          },
+          {
+            "text": "1 Filet O Fish VM Med",
+            "box": [
+              270,
+              949,
+              546,
+              986
+            ]
+          },
+          {
+            "text": "99.00",
+            "box": [
+              679,
+              950,
+              750,
+              980
+            ]
+          },
+          {
+            "text": "1 M French Fries - 3WK",
+            "box": [
+              294,
+              980,
+              583,
+              1018
+            ]
+          },
+          {
+            "text": "1 Coke 16 oz.",
+            "box": [
+              295,
+              1015,
+              466,
+              1050
+            ]
+          },
+          {
+            "text": "Rounding Adjustment",
+            "box": [
+              239,
+              1079,
+              492,
+              1116
+            ]
+          },
+          {
+            "text": "0.00",
+            "box": [
+              690,
+              1072,
+              752,
+              1110
+            ]
+          },
+          {
+            "text": "Subtotal",
+            "box": [
+              239,
+              1114,
+              350,
+              1148
+            ]
+          },
+          {
+            "text": "99.00",
+            "box": [
+              679,
+              1105,
+              753,
+              1142
+            ]
+          },
+          {
+            "text": "Take-Out Total (incl Tax)",
+            "box": [
+              238,
+              1142,
+              569,
+              1183
+            ]
+          },
+          {
+            "text": "99.00",
+            "box": [
+              680,
+              1139,
+              754,
+              1175
+            ]
+          },
+          {
+            "text": "PromptPay QR",
+            "box": [
+              237,
+              1180,
+              402,
+              1213
+            ]
+          },
+          {
+            "text": "99.00",
+            "box": [
+              683,
+              1173,
+              755,
+              1206
+            ]
+          },
+          {
+            "text": "Net Total",
+            "box": [
+              237,
+              1211,
+              363,
+              1245
+            ]
+          },
+          {
+            "text": "92.52",
+            "box": [
+              683,
+              1205,
+              755,
+              1239
+            ]
+          },
+          {
+            "text": "Tax Included",
+            "box": [
+              237,
+              1243,
+              402,
+              1276
+            ]
+          },
+          {
+            "text": "6.48",
+            "box": [
+              693,
+              1237,
+              756,
+              1271
+            ]
+          }
+        ],
+        "engine": "paddleocr",
+        "message": "Receipt read with PaddleOCR. Review the preview before submitting.",
+        "receipt": {
+          "products": [
+            {
+              "name": "1 Filet O Fish VM Med",
+              "qty": "1",
+              "total": 99
+            },
+            {
+              "name": "M French Fries - 3WK",
+              "qty": "1",
+              "total": 0
+            },
+            {
+              "name": "Coke 16 oz.",
+              "qty": "1",
+              "total": 0
+            }
+          ],
+          "total": 99,
+          "status": "Paid",
+          "dueDate": null,
+          "paymentType": "Cash"
+        },
+        "sheetPreview": {
+          "headers": [
+            "Date",
+            "Product",
+            "Qty",
+            "Price",
+            "Status",
+            "Due Date",
+            "Payment_Type"
+          ],
+          "rows": [
+            [
+              "Created when submitted",
+              "1 Filet O Fish VM Med",
+              "1",
+              99,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "M French Fries - 3WK",
+              "1",
+              0,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "Coke 16 oz.",
+              "1",
+              0,
+              "Paid",
+              "",
+              "Cash"
+            ]
+          ],
+          "total": 99
+        },
+        "rawText": "2692\nMcTHaI CO.,LTD.\nTAX ID:0105526048623\nVAT INCLUDED TAX INVOICE(ABB)\n50272 TheMall Thapra Tel. 08-4320-4643\nPOS Serial No: E030300002A1103\nPOS Type: Cso\nCrew id 5 - PloypailinL\nMFY Side 1\nINV# 502722600009878\nORD #92 -CS0 #26- 10/05/2026 13:04:49\nQTY ITEM\nTOTAL\n1 Filet O Fish VM Med\n99.00\n1 M French Fries - 3WK\n1 Coke 16 oz.\nRounding Adjustment\n0.00\nSubtotal\n99.00\nTake-Out Total (incl Tax)\n99.00\nPromptPay QR\n99.00\nNet Total\n92.52\nTax Included\n6.48"
+      }
+    }
+  }
+}

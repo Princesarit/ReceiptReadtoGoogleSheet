@@ -1,0 +1,636 @@
+{
+  "file": "image5.jpg",
+  "results": {
+    "ocr": {
+      "status": 200,
+      "ok": true,
+      "ms": 13142,
+      "body": {
+        "success": true,
+        "_debugEntries": [
+          {
+            "text": "CHEMIST",
+            "box": [
+              528,
+              244,
+              723,
+              302
+            ]
+          },
+          {
+            "text": "WAREHDUSE",
+            "box": [
+              532,
+              289,
+              716,
+              327
+            ]
+          },
+          {
+            "text": "Chemist Warehouse Sydney -Wynyard",
+            "box": [
+              442,
+              325,
+              806,
+              370
+            ]
+          },
+          {
+            "text": "Lower Ground Floor 309 George Street SYDNEY",
+            "box": [
+              409,
+              346,
+              834,
+              395
+            ]
+          },
+          {
+            "text": "ABN. 26 681 071 330 Phone +61292615339",
+            "box": [
+              426,
+              367,
+              825,
+              417
+            ]
+          },
+          {
+            "text": "Tax Involce",
+            "box": [
+              553,
+              414,
+              684,
+              452
+            ]
+          },
+          {
+            "text": "Involce Number:99385283799336944",
+            "box": [
+              450,
+              449,
+              782,
+              495
+            ]
+          },
+          {
+            "text": "29 Apr 2026 1:36PM",
+            "box": [
+              521,
+              476,
+              709,
+              513
+            ]
+          },
+          {
+            "text": "Served By: 54374 Jiayu (TILL03)",
+            "box": [
+              469,
+              495,
+              759,
+              538
+            ]
+          },
+          {
+            "text": "1",
+            "box": [
+              398,
+              578,
+              417,
+              601
+            ]
+          },
+          {
+            "text": "DERCOS ANTI/D S/POO 2IN1 200ML'",
+            "box": [
+              437,
+              580,
+              720,
+              622
+            ]
+          },
+          {
+            "text": "Why Pay S29.99?",
+            "box": [
+              435,
+              606,
+              596,
+              643
+            ]
+          },
+          {
+            "text": "$25.99",
+            "box": [
+              762,
+              599,
+              831,
+              628
+            ]
+          },
+          {
+            "text": "1",
+            "box": [
+              395,
+              647,
+              412,
+              666
+            ]
+          },
+          {
+            "text": "ON GS WHEY C&C 2.27KG*",
+            "box": [
+              433,
+              646,
+              647,
+              684
+            ]
+          },
+          {
+            "text": "Why Pay S159.95?",
+            "box": [
+              431,
+              672,
+              602,
+              708
+            ]
+          },
+          {
+            "text": "$135.99",
+            "box": [
+              747,
+              664,
+              827,
+              695
+            ]
+          },
+          {
+            "text": "1",
+            "box": [
+              394,
+              711,
+              406,
+              725
+            ]
+          },
+          {
+            "text": "DUIT TOUGH HNDS INT CRM 150G*",
+            "box": [
+              427,
+              707,
+              705,
+              751
+            ]
+          },
+          {
+            "text": "Why Pay S13.95?",
+            "box": [
+              426,
+              734,
+              590,
+              772
+            ]
+          },
+          {
+            "text": "$9.69",
+            "box": [
+              765,
+              731,
+              826,
+              760
+            ]
+          },
+          {
+            "text": "M/NATION CREATINE M/HYD 225G*",
+            "box": [
+              421,
+              774,
+              702,
+              819
+            ]
+          },
+          {
+            "text": "Why Pay $30.00?",
+            "box": [
+              422,
+              801,
+              585,
+              841
+            ]
+          },
+          {
+            "text": "$2199",
+            "box": [
+              750,
+              795,
+              822,
+              829
+            ]
+          },
+          {
+            "text": "TOTAL",
+            "box": [
+              414,
+              870,
+              515,
+              910
+            ]
+          },
+          {
+            "text": "$193.66",
+            "box": [
+              709,
+              891,
+              819,
+              931
+            ]
+          },
+          {
+            "text": "4 Item(s)",
+            "box": [
+              412,
+              901,
+              507,
+              939
+            ]
+          },
+          {
+            "text": "EFT",
+            "box": [
+              409,
+              943,
+              460,
+              977
+            ]
+          },
+          {
+            "text": "$193.66",
+            "box": [
+              732,
+              967,
+              816,
+              1001
+            ]
+          },
+          {
+            "text": "Change",
+            "box": [
+              406,
+              987,
+              487,
+              1024
+            ]
+          },
+          {
+            "text": "$0.00",
+            "box": [
+              752,
+              1012,
+              815,
+              1044
+            ]
+          },
+          {
+            "text": "You have saved",
+            "box": [
+              351,
+              1074,
+              560,
+              1118
+            ]
+          },
+          {
+            "text": "$40.23",
+            "box": [
+              613,
+              1078,
+              783,
+              1155
+            ]
+          },
+          {
+            "text": "Indicates a taxable itern",
+            "box": [
+              341,
+              1149,
+              573,
+              1188
+            ]
+          },
+          {
+            "text": "Total includes GST $17.61",
+            "box": [
+              338,
+              1178,
+              590,
+              1218
+            ]
+          },
+          {
+            "text": "nab EFTPOS",
+            "box": [
+              356,
+              1358,
+              466,
+              1388
+            ]
+          },
+          {
+            "text": "CHEMIST WAREHOUSE SY",
+            "box": [
+              328,
+              1398,
+              558,
+              1434
+            ]
+          },
+          {
+            "text": "Credit A/C",
+            "box": [
+              575,
+              1389,
+              665,
+              1419
+            ]
+          },
+          {
+            "text": "SYDNEY",
+            "box": [
+              325,
+              1421,
+              403,
+              1451
+            ]
+          },
+          {
+            "text": "AU",
+            "box": [
+              456,
+              1429,
+              489,
+              1454
+            ]
+          },
+          {
+            "text": "APPROVED",
+            "box": [
+              575,
+              1434,
+              680,
+              1465
+            ]
+          },
+          {
+            "text": "00",
+            "box": [
+              746,
+              1443,
+              773,
+              1469
+            ]
+          },
+          {
+            "text": "CUSTOMER COPY",
+            "box": [
+              337,
+              1466,
+              499,
+              1503
+            ]
+          },
+          {
+            "text": "ARQC",
+            "box": [
+              575,
+              1457,
+              635,
+              1485
+            ]
+          },
+          {
+            "text": "7D6DD164634E8F8A",
+            "box": [
+              646,
+              1460,
+              825,
+              1495
+            ]
+          },
+          {
+            "text": "APSN",
+            "box": [
+              574,
+              1479,
+              632,
+              1510
+            ]
+          },
+          {
+            "text": "00",
+            "box": [
+              717,
+              1489,
+              746,
+              1514
+            ]
+          },
+          {
+            "text": "Acquirer",
+            "box": [
+              309,
+              1510,
+              389,
+              1544
+            ]
+          },
+          {
+            "text": "ATC",
+            "box": [
+              573,
+              1502,
+              619,
+              1533
+            ]
+          },
+          {
+            "text": "04AC",
+            "box": [
+              698,
+              1510,
+              753,
+              1540
+            ]
+          },
+          {
+            "text": "NAB",
+            "box": [
+              449,
+              1522,
+              496,
+              1549
+            ]
+          },
+          {
+            "text": "Merchant ID",
+            "box": [
+              308,
+              1536,
+              415,
+              1568
+            ]
+          },
+          {
+            "text": "24696670",
+            "box": [
+              434,
+              1544,
+              520,
+              1575
+            ]
+          },
+          {
+            "text": "Terminal ID",
+            "box": [
+              307,
+              1559,
+              406,
+              1591
+            ]
+          },
+          {
+            "text": "AUTH ID",
+            "box": [
+              574,
+              1553,
+              654,
+              1583
+            ]
+          },
+          {
+            "text": "CW4110",
+            "box": [
+              437,
+              1568,
+              516,
+              1600
+            ]
+          },
+          {
+            "text": "801646",
+            "box": [
+              707,
+              1560,
+              775,
+              1590
+            ]
+          },
+          {
+            "text": "PURCHASE",
+            "box": [
+              574,
+              1577,
+              682,
+              1608
+            ]
+          },
+          {
+            "text": "Country Cor",
+            "box": [
+              305,
+              1587,
+              414,
+              1609
+            ]
+          },
+          {
+            "text": "$193 66",
+            "box": [
+              726,
+              1587,
+              799,
+              1609
+            ]
+          }
+        ],
+        "engine": "paddleocr",
+        "message": "Receipt read with PaddleOCR. Review the preview before submitting.",
+        "receipt": {
+          "products": [
+            {
+              "name": "1 DERCOS ANTI/D S/POO 2IN1 200ML'",
+              "qty": "1",
+              "total": 25.99
+            },
+            {
+              "name": "1 ON GS WHEY C&C 2.27KG",
+              "qty": "1",
+              "total": 135.99
+            },
+            {
+              "name": "1 DUIT TOUGH HNDS INT CRM 150G",
+              "qty": "1",
+              "total": 9.69
+            },
+            {
+              "name": "M/NATION CREATINE M/HYD 225G",
+              "qty": "1",
+              "total": 21.99
+            }
+          ],
+          "total": 193.66,
+          "status": "Paid",
+          "dueDate": null,
+          "paymentType": "Cash"
+        },
+        "sheetPreview": {
+          "headers": [
+            "Date",
+            "Product",
+            "Qty",
+            "Price",
+            "Status",
+            "Due Date",
+            "Payment_Type"
+          ],
+          "rows": [
+            [
+              "Created when submitted",
+              "1 DERCOS ANTI/D S/POO 2IN1 200ML'",
+              "1",
+              25.99,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "1 ON GS WHEY C&C 2.27KG",
+              "1",
+              135.99,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "1 DUIT TOUGH HNDS INT CRM 150G",
+              "1",
+              9.69,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "M/NATION CREATINE M/HYD 225G",
+              "1",
+              21.99,
+              "Paid",
+              "",
+              "Cash"
+            ]
+          ],
+          "total": 193.66
+        },
+        "rawText": "CHEMIST\nWAREHDUSE\nChemist Warehouse Sydney -Wynyard\nLower Ground Floor 309 George Street SYDNEY\nABN. 26 681 071 330 Phone +61292615339\nTax Involce\nInvolce Number:99385283799336944\n29 Apr 2026 1:36PM\nServed By: 54374 Jiayu (TILL03)\n1\nDERCOS ANTI/D S/POO 2IN1 200ML'\nWhy Pay S29.99?\n$25.99\n1\nON GS WHEY C&C 2.27KG*\nWhy Pay S159.95?\n$135.99\n1\nDUIT TOUGH HNDS INT CRM 150G*\nWhy Pay S13.95?\n$9.69\nM/NATION CREATINE M/HYD 225G*\nWhy Pay $30.00?\n$2199\nTOTAL\n$193.66\n4 Item(s)\nEFT\n$193.66\nChange\n$0.00\nYou have saved\n$40.23\nIndicates a taxable itern\nTotal includes GST $17.61\nnab EFTPOS\nCHEMIST WAREHOUSE SY\nCredit A/C\nSYDNEY\nAU\nAPPROVED\n00\nCUSTOMER COPY\nARQC\n7D6DD164634E8F8A\nAPSN\n00\nAcquirer\nATC\n04AC\nNAB\nMerchant ID\n24696670\nTerminal ID\nAUTH ID\nCW4110\n801646\nPURCHASE\nCountry Cor\n$193 66"
+      }
+    }
+  }
+}

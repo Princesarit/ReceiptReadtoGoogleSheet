@@ -1,0 +1,675 @@
+{
+  "file": "image8.jpg",
+  "results": {
+    "ocr": {
+      "status": 200,
+      "ok": true,
+      "ms": 13309,
+      "body": {
+        "success": true,
+        "_debugEntries": [
+          {
+            "text": "CHEMIST",
+            "box": [
+              420,
+              161,
+              620,
+              223
+            ]
+          },
+          {
+            "text": "WARENOUSE",
+            "box": [
+              429,
+              206,
+              618,
+              247
+            ]
+          },
+          {
+            "text": "Chemist Warehouse Sydney-Wynyard",
+            "box": [
+              340,
+              244,
+              713,
+              295
+            ]
+          },
+          {
+            "text": "Lower Ground Floor 309 George Street SYDNEY",
+            "box": [
+              309,
+              266,
+              746,
+              320
+            ]
+          },
+          {
+            "text": "ABN: 26 681 071 330 Phon6: +61292615339",
+            "box": [
+              330,
+              290,
+              737,
+              339
+            ]
+          },
+          {
+            "text": "Tax Invoice",
+            "box": [
+              467,
+              339,
+              600,
+              374
+            ]
+          },
+          {
+            "text": "InvoiceNumber:99386528906586224",
+            "box": [
+              366,
+              373,
+              706,
+              417
+            ]
+          },
+          {
+            "text": "10 May 2026 12:50PM",
+            "box": [
+              439,
+              400,
+              640,
+              436
+            ]
+          },
+          {
+            "text": "Served By 115900 Raphael (TILL05)",
+            "box": [
+              372,
+              417,
+              709,
+              465
+            ]
+          },
+          {
+            "text": "$135.99",
+            "box": [
+              693,
+              497,
+              775,
+              530
+            ]
+          },
+          {
+            "text": "1",
+            "box": [
+              329,
+              530,
+              346,
+              549
+            ]
+          },
+          {
+            "text": "ON GS WHEY MLK CHOC 2.27KG*",
+            "box": [
+              368,
+              509,
+              643,
+              551
+            ]
+          },
+          {
+            "text": "Why Pay $159 95?",
+            "box": [
+              372,
+              542,
+              549,
+              579
+            ]
+          },
+          {
+            "text": "$135.99",
+            "box": [
+              676,
+              593,
+              787,
+              635
+            ]
+          },
+          {
+            "text": "TOTAL",
+            "box": [
+              374,
+              617,
+              477,
+              655
+            ]
+          },
+          {
+            "text": "1 Item(s)",
+            "box": [
+              379,
+              651,
+              472,
+              684
+            ]
+          },
+          {
+            "text": "$135 99",
+            "box": [
+              709,
+              667,
+              793,
+              702
+            ]
+          },
+          {
+            "text": "EFT",
+            "box": [
+              380,
+              696,
+              430,
+              727
+            ]
+          },
+          {
+            "text": "$0.00",
+            "box": [
+              735,
+              708,
+              801,
+              744
+            ]
+          },
+          {
+            "text": "Change",
+            "box": [
+              383,
+              738,
+              465,
+              771
+            ]
+          },
+          {
+            "text": "$23.96",
+            "box": [
+              611,
+              789,
+              778,
+              863
+            ]
+          },
+          {
+            "text": "You have saved",
+            "box": [
+              338,
+              822,
+              556,
+              871
+            ]
+          },
+          {
+            "text": "Indicates a taxable item",
+            "box": [
+              339,
+              895,
+              581,
+              944
+            ]
+          },
+          {
+            "text": "Total includes GST $12.36",
+            "box": [
+              340,
+              922,
+              603,
+              974
+            ]
+          },
+          {
+            "text": "nab EFTPOS",
+            "box": [
+              387,
+              1107,
+              498,
+              1142
+            ]
+          },
+          {
+            "text": "Credit A/C",
+            "box": [
+              609,
+              1109,
+              696,
+              1140
+            ]
+          },
+          {
+            "text": "00",
+            "box": [
+              775,
+              1138,
+              806,
+              1165
+            ]
+          },
+          {
+            "text": "CHEMIST WAREHOUSE SY",
+            "box": [
+              366,
+              1137,
+              592,
+              1182
+            ]
+          },
+          {
+            "text": "APPROVED",
+            "box": [
+              614,
+              1146,
+              715,
+              1179
+            ]
+          },
+          {
+            "text": "AU",
+            "box": [
+              494,
+              1164,
+              530,
+              1191
+            ]
+          },
+          {
+            "text": "ARQC",
+            "box": [
+              616,
+              1171,
+              673,
+              1199
+            ]
+          },
+          {
+            "text": "80931A4B02832056",
+            "box": [
+              687,
+              1155,
+              850,
+              1191
+            ]
+          },
+          {
+            "text": "SYDNEY",
+            "box": [
+              364,
+              1172,
+              445,
+              1204
+            ]
+          },
+          {
+            "text": "00",
+            "box": [
+              754,
+              1183,
+              784,
+              1207
+            ]
+          },
+          {
+            "text": "APSN",
+            "box": [
+              619,
+              1193,
+              675,
+              1221
+            ]
+          },
+          {
+            "text": "04C7",
+            "box": [
+              741,
+              1203,
+              786,
+              1230
+            ]
+          },
+          {
+            "text": "CUSTOMER COPY",
+            "box": [
+              382,
+              1204,
+              543,
+              1243
+            ]
+          },
+          {
+            "text": "ATC",
+            "box": [
+              621,
+              1214,
+              663,
+              1242
+            ]
+          },
+          {
+            "text": "NAB",
+            "box": [
+              498,
+              1245,
+              548,
+              1277
+            ]
+          },
+          {
+            "text": "869174",
+            "box": [
+              751,
+              1242,
+              818,
+              1274
+            ]
+          },
+          {
+            "text": "Acqulrer",
+            "box": [
+              358,
+              1256,
+              442,
+              1292
+            ]
+          },
+          {
+            "text": "AUTH ID",
+            "box": [
+              626,
+              1253,
+              704,
+              1286
+            ]
+          },
+          {
+            "text": "24696670",
+            "box": [
+              488,
+              1266,
+              575,
+              1300
+            ]
+          },
+          {
+            "text": "$136.99",
+            "box": [
+              773,
+              1261,
+              842,
+              1294
+            ]
+          },
+          {
+            "text": "Merchant iD",
+            "box": [
+              360,
+              1277,
+              470,
+              1312
+            ]
+          },
+          {
+            "text": "PURCHASE",
+            "box": [
+              628,
+              1273,
+              733,
+              1306
+            ]
+          },
+          {
+            "text": "CW4112",
+            "box": [
+              494,
+              1289,
+              572,
+              1321
+            ]
+          },
+          {
+            "text": "$135 99",
+            "box": [
+              770,
+              1284,
+              839,
+              1315
+            ]
+          },
+          {
+            "text": "Terminal ID",
+            "box": [
+              360,
+              1299,
+              464,
+              1334
+            ]
+          },
+          {
+            "text": "TOTAL AUD",
+            "box": [
+              631,
+              1295,
+              735,
+              1329
+            ]
+          },
+          {
+            "text": "AU",
+            "box": [
+              535,
+              1312,
+              571,
+              1340
+            ]
+          },
+          {
+            "text": "Country Code",
+            "box": [
+              363,
+              1322,
+              491,
+              1359
+            ]
+          },
+          {
+            "text": "Contactiess Txn",
+            "box": [
+              654,
+              1311,
+              794,
+              1350
+            ]
+          },
+          {
+            "text": "Date/Time 10/06/26 12:60",
+            "box": [
+              364,
+              1334,
+              583,
+              1380
+            ]
+          },
+          {
+            "text": "RRN",
+            "box": [
+              365,
+              1375,
+              414,
+              1405
+            ]
+          },
+          {
+            "text": "000147066642",
+            "box": [
+              454,
+              1359,
+              578,
+              1393
+            ]
+          },
+          {
+            "text": "PLEASE RETAIN AS",
+            "box": [
+              638,
+              1356,
+              806,
+              1395
+            ]
+          },
+          {
+            "text": "DEBIT MASTERCARD",
+            "box": [
+              388,
+              1380,
+              581,
+              1423
+            ]
+          },
+          {
+            "text": "RECORD OF PURCHASE",
+            "box": [
+              639,
+              1372,
+              852,
+              1416
+            ]
+          },
+          {
+            "text": "AID",
+            "box": [
+              366,
+              1419,
+              406,
+              1448
+            ]
+          },
+          {
+            "text": "A0000000041010",
+            "box": [
+              435,
+              1403,
+              581,
+              1439
+            ]
+          },
+          {
+            "text": "##****#*##286675 (C)",
+            "box": [
+              368,
+              1427,
+              568,
+              1470
+            ]
+          },
+          {
+            "text": "Thank-you for shopping at Chemist Warehouse",
+            "box": [
+              367,
+              1434,
+              860,
+              1520
+            ]
+          },
+          {
+            "text": "Home of Real Brands with Real Savings",
+            "box": [
+              368,
+              1474,
+              785,
+              1543
+            ]
+          },
+          {
+            "text": "Policy",
+            "box": [
+              498,
+              1527,
+              566,
+              1559
+            ]
+          },
+          {
+            "text": "y- refer in-store or online",
+            "box": [
+              551,
+              1489,
+              877,
+              1556
+            ]
+          },
+          {
+            "text": "Returns",
+            "box": [
+              400,
+              1536,
+              484,
+              1567
+            ]
+          },
+          {
+            "text": "www.chemistwarehouse.com.au/AboutUs/ReturnsPolicy",
+            "box": [
+              371,
+              1518,
+              883,
+              1599
+            ]
+          },
+          {
+            "text": "Please retain your receipt as proof of purchase.",
+            "box": [
+              374,
+              1554,
+              834,
+              1623
+            ]
+          }
+        ],
+        "engine": "paddleocr",
+        "message": "Receipt read with PaddleOCR. Review the preview before submitting.",
+        "receipt": {
+          "products": [
+            {
+              "name": "ON GS WHEY MLK CHOC 2.27KG",
+              "qty": "1",
+              "total": 135.99
+            }
+          ],
+          "total": 135.99,
+          "status": "Paid",
+          "dueDate": null,
+          "paymentType": "Cash"
+        },
+        "sheetPreview": {
+          "headers": [
+            "Date",
+            "Product",
+            "Qty",
+            "Price",
+            "Status",
+            "Due Date",
+            "Payment_Type"
+          ],
+          "rows": [
+            [
+              "Created when submitted",
+              "ON GS WHEY MLK CHOC 2.27KG",
+              "1",
+              135.99,
+              "Paid",
+              "",
+              "Cash"
+            ]
+          ],
+          "total": 135.99
+        },
+        "rawText": "CHEMIST\nWARENOUSE\nChemist Warehouse Sydney-Wynyard\nLower Ground Floor 309 George Street SYDNEY\nABN: 26 681 071 330 Phon6: +61292615339\nTax Invoice\nInvoiceNumber:99386528906586224\n10 May 2026 12:50PM\nServed By 115900 Raphael (TILL05)\n$135.99\n1\nON GS WHEY MLK CHOC 2.27KG*\nWhy Pay $159 95?\n$135.99\nTOTAL\n1 Item(s)\n$135 99\nEFT\n$0.00\nChange\n$23.96\nYou have saved\nIndicates a taxable item\nTotal includes GST $12.36\nnab EFTPOS\nCredit A/C\n00\nCHEMIST WAREHOUSE SY\nAPPROVED\nAU\nARQC\n80931A4B02832056\nSYDNEY\n00\nAPSN\n04C7\nCUSTOMER COPY\nATC\nNAB\n869174\nAcqulrer\nAUTH ID\n24696670\n$136.99\nMerchant iD\nPURCHASE\nCW4112\n$135 99\nTerminal ID\nTOTAL AUD\nAU\nCountry Code\nContactiess Txn\nDate/Time 10/06/26 12:60\nRRN\n000147066642\nPLEASE RETAIN AS\nDEBIT MASTERCARD\nRECORD OF PURCHASE\nAID\nA0000000041010\n##****#*##286675 (C)\nThank-you for shopping at Chemist Warehouse\nHome of Real Brands with Real Savings\nPolicy\ny- refer in-store or online\nReturns\nwww.chemistwarehouse.com.au/AboutUs/ReturnsPolicy\nPlease retain your receipt as proof of purchase."
+      }
+    }
+  }
+}

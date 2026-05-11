@@ -1,0 +1,293 @@
+{
+  "file": "image3.jpg",
+  "results": {
+    "ocr": {
+      "status": 200,
+      "ok": true,
+      "ms": 12459,
+      "body": {
+        "success": true,
+        "_debugEntries": [
+          {
+            "text": "La Cabra Thailand",
+            "box": [
+              303,
+              274,
+              692,
+              354
+            ]
+          },
+          {
+            "text": "TOTAL",
+            "box": [
+              459,
+              419,
+              541,
+              453
+            ]
+          },
+          {
+            "text": "B320.00",
+            "box": [
+              401,
+              443,
+              605,
+              507
+            ]
+          },
+          {
+            "text": "Price",
+            "box": [
+              718,
+              541,
+              796,
+              582
+            ]
+          },
+          {
+            "text": "Itenis",
+            "box": [
+              227,
+              581,
+              302,
+              612
+            ]
+          },
+          {
+            "text": "8170.00",
+            "box": [
+              679,
+              597,
+              794,
+              640
+            ]
+          },
+          {
+            "text": "Egg Tart",
+            "box": [
+              227,
+              632,
+              332,
+              668
+            ]
+          },
+          {
+            "text": "Take Away",
+            "box": [
+              229,
+              662,
+              347,
+              694
+            ]
+          },
+          {
+            "text": "(2 x $85.00)",
+            "box": [
+              228,
+              688,
+              368,
+              725
+            ]
+          },
+          {
+            "text": "$150.00",
+            "box": [
+              689,
+              739,
+              807,
+              779
+            ]
+          },
+          {
+            "text": "Ham & Cheese Croissant",
+            "box": [
+              228,
+              758,
+              519,
+              799
+            ]
+          },
+          {
+            "text": "Take Away",
+            "box": [
+              227,
+              795,
+              349,
+              831
+            ]
+          },
+          {
+            "text": "$320.00",
+            "box": [
+              707,
+              855,
+              823,
+              893
+            ]
+          },
+          {
+            "text": "Subtotal",
+            "box": [
+              225,
+              877,
+              326,
+              910
+            ]
+          },
+          {
+            "text": "$20.93",
+            "box": [
+              726,
+              915,
+              829,
+              955
+            ]
+          },
+          {
+            "text": "VAT (7%)",
+            "box": [
+              223,
+              934,
+              334,
+              972
+            ]
+          },
+          {
+            "text": "Included in produci price",
+            "box": [
+              222,
+              959,
+              503,
+              1004
+            ]
+          },
+          {
+            "text": "B320.00",
+            "box": [
+              706,
+              1010,
+              831,
+              1052
+            ]
+          },
+          {
+            "text": "Total",
+            "box": [
+              221,
+              1027,
+              290,
+              1063
+            ]
+          },
+          {
+            "text": "$320.00",
+            "box": [
+              723,
+              1115,
+              843,
+              1158
+            ]
+          },
+          {
+            "text": "Tranfer",
+            "box": [
+              218,
+              1127,
+              310,
+              1169
+            ]
+          },
+          {
+            "text": "May 05, 2026, 03:23 PM",
+            "box": [
+              384,
+              1231,
+              680,
+              1267
+            ]
+          },
+          {
+            "text": "Receipt. #8-76614",
+            "box": [
+              417,
+              1267,
+              649,
+              1304
+            ]
+          },
+          {
+            "text": "Wi-Fi Password",
+            "box": [
+              438,
+              1303,
+              630,
+              1339
+            ]
+          },
+          {
+            "text": "lacabra123",
+            "box": [
+              464,
+              1342,
+              603,
+              1374
+            ]
+          }
+        ],
+        "engine": "paddleocr",
+        "message": "Receipt read with PaddleOCR. Review the preview before submitting.",
+        "receipt": {
+          "products": [
+            {
+              "name": "Egg Tart",
+              "qty": "2",
+              "total": 170
+            },
+            {
+              "name": "Ham & Cheese Croissant",
+              "qty": "1",
+              "total": 150
+            }
+          ],
+          "total": 320,
+          "status": "Paid",
+          "dueDate": null,
+          "paymentType": "Cash"
+        },
+        "sheetPreview": {
+          "headers": [
+            "Date",
+            "Product",
+            "Qty",
+            "Price",
+            "Status",
+            "Due Date",
+            "Payment_Type"
+          ],
+          "rows": [
+            [
+              "Created when submitted",
+              "Egg Tart",
+              "2",
+              170,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "Ham & Cheese Croissant",
+              "1",
+              150,
+              "Paid",
+              "",
+              "Cash"
+            ]
+          ],
+          "total": 320
+        },
+        "rawText": "La Cabra Thailand\nTOTAL\nB320.00\nPrice\nItenis\n8170.00\nEgg Tart\nTake Away\n(2 x $85.00)\n$150.00\nHam & Cheese Croissant\nTake Away\n$320.00\nSubtotal\n$20.93\nVAT (7%)\nIncluded in produci price\nB320.00\nTotal\n$320.00\nTranfer\nMay 05, 2026, 03:23 PM\nReceipt. #8-76614\nWi-Fi Password\nlacabra123"
+      }
+    }
+  }
+}

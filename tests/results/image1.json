@@ -1,0 +1,338 @@
+{
+  "file": "image1.jpg",
+  "results": {
+    "ocr": {
+      "status": 200,
+      "ok": true,
+      "ms": 12433,
+      "body": {
+        "success": true,
+        "_debugEntries": [
+          {
+            "text": "watsons",
+            "box": [
+              335,
+              513,
+              647,
+              557
+            ]
+          },
+          {
+            "text": "262079 B98_S0TyLO0131TMO.",
+            "box": [
+              242,
+              563,
+              551,
+              593
+            ]
+          },
+          {
+            "text": "37.00",
+            "box": [
+              627,
+              562,
+              693,
+              587
+            ]
+          },
+          {
+            "text": "T",
+            "box": [
+              724,
+              565,
+              741,
+              586
+            ]
+          },
+          {
+            "text": "325884 #4U2 You're Mine L",
+            "box": [
+              238,
+              593,
+              555,
+              631
+            ]
+          },
+          {
+            "text": "179.00",
+            "box": [
+              614,
+              590,
+              695,
+              622
+            ]
+          },
+          {
+            "text": "T",
+            "box": [
+              727,
+              593,
+              745,
+              620
+            ]
+          },
+          {
+            "text": "2 SUBTOTAL",
+            "box": [
+              262,
+              664,
+              395,
+              703
+            ]
+          },
+          {
+            "text": "216.00",
+            "box": [
+              614,
+              658,
+              700,
+              698
+            ]
+          },
+          {
+            "text": "QR-Code",
+            "box": [
+              285,
+              700,
+              382,
+              739
+            ]
+          },
+          {
+            "text": "216.00",
+            "box": [
+              615,
+              694,
+              700,
+              734
+            ]
+          },
+          {
+            "text": "CHANGE",
+            "box": [
+              287,
+              737,
+              372,
+              777
+            ]
+          },
+          {
+            "text": "0.00",
+            "box": [
+              640,
+              731,
+              700,
+              770
+            ]
+          },
+          {
+            "text": "VAT RECEIPT SUMMARY",
+            "box": [
+              368,
+              796,
+              610,
+              840
+            ]
+          },
+          {
+            "text": "VAT",
+            "box": [
+              505,
+              835,
+              552,
+              872
+            ]
+          },
+          {
+            "text": "TOTAL",
+            "box": [
+              627,
+              827,
+              700,
+              869
+            ]
+          },
+          {
+            "text": "NET",
+            "box": [
+              380,
+              838,
+              432,
+              878
+            ]
+          },
+          {
+            "text": "Rate",
+            "box": [
+              240,
+              847,
+              303,
+              887
+            ]
+          },
+          {
+            "text": "201.87",
+            "box": [
+              382,
+              872,
+              466,
+              914
+            ]
+          },
+          {
+            "text": "14.13",
+            "box": [
+              507,
+              869,
+              576,
+              909
+            ]
+          },
+          {
+            "text": "216.00",
+            "box": [
+              628,
+              864,
+              712,
+              906
+            ]
+          },
+          {
+            "text": "T 7.00%",
+            "box": [
+              241,
+              877,
+              357,
+              924
+            ]
+          },
+          {
+            "text": "VAT NO. 0105539086260",
+            "box": [
+              348,
+              940,
+              615,
+              989
+            ]
+          },
+          {
+            "text": "Product returnable within 14 days only",
+            "box": [
+              249,
+              1007,
+              727,
+              1068
+            ]
+          },
+          {
+            "text": "Please contact Call Center for more",
+            "box": [
+              252,
+              1046,
+              692,
+              1101
+            ]
+          },
+          {
+            "text": "information Tel: 02-0178899",
+            "box": [
+              256,
+              1080,
+              594,
+              1137
+            ]
+          },
+          {
+            "text": "For e-tax please visit",
+            "box": [
+              367,
+              1149,
+              644,
+              1201
+            ]
+          },
+          {
+            "text": "to request your e-Tax invaice",
+            "box": [
+              335,
+              1184,
+              693,
+              1239
+            ]
+          },
+          {
+            "text": "within the day of purchase",
+            "box": [
+              348,
+              1219,
+              669,
+              1270
+            ]
+          },
+          {
+            "text": "https://app.watsons.co. th/etax",
+            "box": [
+              326,
+              1253,
+              693,
+              1302
+            ]
+          }
+        ],
+        "engine": "paddleocr",
+        "message": "Receipt read with PaddleOCR. Review the preview before submitting.",
+        "receipt": {
+          "products": [
+            {
+              "name": "B98_S0TyLO0131TMO.",
+              "qty": "1",
+              "total": 37
+            },
+            {
+              "name": "4U2 You're Mine L",
+              "qty": "1",
+              "total": 179
+            }
+          ],
+          "total": 216,
+          "status": "Paid",
+          "dueDate": null,
+          "paymentType": "Cash"
+        },
+        "sheetPreview": {
+          "headers": [
+            "Date",
+            "Product",
+            "Qty",
+            "Price",
+            "Status",
+            "Due Date",
+            "Payment_Type"
+          ],
+          "rows": [
+            [
+              "Created when submitted",
+              "B98_S0TyLO0131TMO.",
+              "1",
+              37,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "4U2 You're Mine L",
+              "1",
+              179,
+              "Paid",
+              "",
+              "Cash"
+            ]
+          ],
+          "total": 216
+        },
+        "rawText": "watsons\n262079 B98_S0TyLO0131TMO.\n37.00\nT\n325884 #4U2 You're Mine L\n179.00\nT\n2 SUBTOTAL\n216.00\nQR-Code\n216.00\nCHANGE\n0.00\nVAT RECEIPT SUMMARY\nVAT\nTOTAL\nNET\nRate\n201.87\n14.13\n216.00\nT 7.00%\nVAT NO. 0105539086260\nProduct returnable within 14 days only\nPlease contact Call Center for more\ninformation Tel: 02-0178899\nFor e-tax please visit\nto request your e-Tax invaice\nwithin the day of purchase\nhttps://app.watsons.co. th/etax"
+      }
+    }
+  }
+}

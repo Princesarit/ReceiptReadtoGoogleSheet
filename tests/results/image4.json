@@ -1,0 +1,533 @@
+{
+  "file": "image4.jpg",
+  "results": {
+    "ocr": {
+      "status": 200,
+      "ok": true,
+      "ms": 12234,
+      "body": {
+        "success": true,
+        "_debugEntries": [
+          {
+            "text": "CHEMIST",
+            "box": [
+              481,
+              221,
+              677,
+              277
+            ]
+          },
+          {
+            "text": "WARBHOUSR",
+            "box": [
+              484,
+              265,
+              672,
+              301
+            ]
+          },
+          {
+            "text": "Chemist Warehouse Sydney-Wynyard",
+            "box": [
+              392,
+              304,
+              761,
+              347
+            ]
+          },
+          {
+            "text": "Lower Ground Floor 309 George Streel SYDNEY",
+            "box": [
+              360,
+              330,
+              790,
+              372
+            ]
+          },
+          {
+            "text": "ABN 26 681 071330 Phone: +61292615339",
+            "box": [
+              377,
+              351,
+              781,
+              395
+            ]
+          },
+          {
+            "text": "Tax Involce",
+            "box": [
+              509,
+              394,
+              644,
+              431
+            ]
+          },
+          {
+            "text": "InvolceNumber 99385284503.114880",
+            "box": [
+              405,
+              432,
+              744,
+              471
+            ]
+          },
+          {
+            "text": "07May 2026 5:05PM",
+            "box": [
+              477,
+              458,
+              675,
+              491
+            ]
+          },
+          {
+            "text": "Served By: 100089 Yue Han (Til.L03)",
+            "box": [
+              404,
+              479,
+              744,
+              517
+            ]
+          },
+          {
+            "text": "AVENE EAU/THERM 3OOML WATER'",
+            "box": [
+              394,
+              568,
+              686,
+              602
+            ]
+          },
+          {
+            "text": "$9.00",
+            "box": [
+              742,
+              578,
+              798,
+              604
+            ]
+          },
+          {
+            "text": "Why Pay $29.99?",
+            "box": [
+              394,
+              597,
+              562,
+              628
+            ]
+          },
+          {
+            "text": "CK ONE EDT 200ML'",
+            "box": [
+              393,
+              638,
+              567,
+              668
+            ]
+          },
+          {
+            "text": "$44.00",
+            "box": [
+              731,
+              645,
+              798,
+              671
+            ]
+          },
+          {
+            "text": "Why Pay $11400?",
+            "box": [
+              393,
+              666,
+              571,
+              697
+            ]
+          },
+          {
+            "text": "1",
+            "box": [
+              352,
+              707,
+              369,
+              726
+            ]
+          },
+          {
+            "text": "CERAVE BLEMISH BARRIER",
+            "box": [
+              391,
+              702,
+              627,
+              735
+            ]
+          },
+          {
+            "text": "$14.00",
+            "box": [
+              734,
+              712,
+              801,
+              738
+            ]
+          },
+          {
+            "text": "PATCHES*",
+            "box": [
+              391,
+              725,
+              487,
+              753
+            ]
+          },
+          {
+            "text": "Why Pay S16.997",
+            "box": [
+              391,
+              751,
+              562,
+              782
+            ]
+          },
+          {
+            "text": "1",
+            "box": [
+              348,
+              796,
+              366,
+              816
+            ]
+          },
+          {
+            "text": "SWISSE GRAPE 14250MG 300T",
+            "box": [
+              390,
+              794,
+              657,
+              824
+            ]
+          },
+          {
+            "text": "$34.00",
+            "box": [
+              734,
+              799,
+              807,
+              830
+            ]
+          },
+          {
+            "text": "Why Pay $76.99?",
+            "box": [
+              388,
+              819,
+              564,
+              854
+            ]
+          },
+          {
+            "text": "1",
+            "box": [
+              346,
+              868,
+              363,
+              889
+            ]
+          },
+          {
+            "text": "CERAVE FACE MST LTN PM 52ML*",
+            "box": [
+              388,
+              865,
+              684,
+              898
+            ]
+          },
+          {
+            "text": "$23.99",
+            "box": [
+              739,
+              870,
+              808,
+              899
+            ]
+          },
+          {
+            "text": "Why Pay $26.99?",
+            "box": [
+              387,
+              895,
+              563,
+              927
+            ]
+          },
+          {
+            "text": "TOTAL",
+            "box": [
+              383,
+              972,
+              489,
+              1008
+            ]
+          },
+          {
+            "text": "$128.95",
+            "box": [
+              706,
+              977,
+              813,
+              1009
+            ]
+          },
+          {
+            "text": "5 Item(s)",
+            "box": [
+              381,
+              1003,
+              483,
+              1040
+            ]
+          },
+          {
+            "text": "EFT",
+            "box": [
+              381,
+              1052,
+              432,
+              1082
+            ]
+          },
+          {
+            "text": "$128.95",
+            "box": [
+              730,
+              1056,
+              812,
+              1085
+            ]
+          },
+          {
+            "text": "Change",
+            "box": [
+              379,
+              1096,
+              463,
+              1129
+            ]
+          },
+          {
+            "text": "$0.00",
+            "box": [
+              751,
+              1101,
+              814,
+              1132
+            ]
+          },
+          {
+            "text": "You have saved",
+            "box": [
+              321,
+              1189,
+              545,
+              1227
+            ]
+          },
+          {
+            "text": "$136.01",
+            "box": [
+              588,
+              1184,
+              782,
+              1243
+            ]
+          },
+          {
+            "text": "Indicates a taxable item",
+            "box": [
+              313,
+              1266,
+              560,
+              1297
+            ]
+          },
+          {
+            "text": "Total includes GST $11.72",
+            "box": [
+              312,
+              1295,
+              579,
+              1323
+            ]
+          },
+          {
+            "text": "nab EFTPOS",
+            "box": [
+              338,
+              1494,
+              451,
+              1520
+            ]
+          },
+          {
+            "text": "Credit AG",
+            "box": [
+              566,
+              1512,
+              658,
+              1540
+            ]
+          },
+          {
+            "text": "CHEMIST WAREHOUSE BY",
+            "box": [
+              309,
+              1535,
+              546,
+              1563
+            ]
+          },
+          {
+            "text": "SYDNEY",
+            "box": [
+              308,
+              1558,
+              387,
+              1585
+            ]
+          },
+          {
+            "text": "AU",
+            "box": [
+              444,
+              1559,
+              477,
+              1583
+            ]
+          },
+          {
+            "text": "APPROVED",
+            "box": [
+              565,
+              1557,
+              668,
+              1581
+            ]
+          },
+          {
+            "text": "00",
+            "box": [
+              735,
+              1556,
+              762,
+              1578
+            ]
+          },
+          {
+            "text": "ARQC 62664DBB209D1BA9",
+            "box": [
+              565,
+              1574,
+              810,
+              1602
+            ]
+          }
+        ],
+        "engine": "paddleocr",
+        "message": "Receipt read with PaddleOCR. Review the preview before submitting.",
+        "receipt": {
+          "products": [
+            {
+              "name": "AVENE EAU/THERM 3OOML WATER'",
+              "qty": "1",
+              "total": 9.99
+            },
+            {
+              "name": "CK ONE EDT 200ML'",
+              "qty": "1",
+              "total": 44.99
+            },
+            {
+              "name": "1 CERAVE BLEMISH BARRIER",
+              "qty": "1",
+              "total": 14.99
+            },
+            {
+              "name": "1 SWISSE GRAPE 14250MG 300T",
+              "qty": "1",
+              "total": 34.99
+            },
+            {
+              "name": "1 CERAVE FACE MST LTN PM 52ML",
+              "qty": "1",
+              "total": 23.99
+            }
+          ],
+          "total": 128.95,
+          "status": "Paid",
+          "dueDate": null,
+          "paymentType": "Cash"
+        },
+        "sheetPreview": {
+          "headers": [
+            "Date",
+            "Product",
+            "Qty",
+            "Price",
+            "Status",
+            "Due Date",
+            "Payment_Type"
+          ],
+          "rows": [
+            [
+              "Created when submitted",
+              "AVENE EAU/THERM 3OOML WATER'",
+              "1",
+              9.99,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "CK ONE EDT 200ML'",
+              "1",
+              44.99,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "1 CERAVE BLEMISH BARRIER",
+              "1",
+              14.99,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "1 SWISSE GRAPE 14250MG 300T",
+              "1",
+              34.99,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "1 CERAVE FACE MST LTN PM 52ML",
+              "1",
+              23.99,
+              "Paid",
+              "",
+              "Cash"
+            ]
+          ],
+          "total": 128.95
+        },
+        "rawText": "CHEMIST\nWARBHOUSR\nChemist Warehouse Sydney-Wynyard\nLower Ground Floor 309 George Streel SYDNEY\nABN 26 681 071330 Phone: +61292615339\nTax Involce\nInvolceNumber 99385284503.114880\n07May 2026 5:05PM\nServed By: 100089 Yue Han (Til.L03)\nAVENE EAU/THERM 3OOML WATER'\n$9.00\nWhy Pay $29.99?\nCK ONE EDT 200ML'\n$44.00\nWhy Pay $11400?\n1\nCERAVE BLEMISH BARRIER\n$14.00\nPATCHES*\nWhy Pay S16.997\n1\nSWISSE GRAPE 14250MG 300T\n$34.00\nWhy Pay $76.99?\n1\nCERAVE FACE MST LTN PM 52ML*\n$23.99\nWhy Pay $26.99?\nTOTAL\n$128.95\n5 Item(s)\nEFT\n$128.95\nChange\n$0.00\nYou have saved\n$136.01\nIndicates a taxable item\nTotal includes GST $11.72\nnab EFTPOS\nCredit AG\nCHEMIST WAREHOUSE BY\nSYDNEY\nAU\nAPPROVED\n00\nARQC 62664DBB209D1BA9"
+      }
+    }
+  }
+}

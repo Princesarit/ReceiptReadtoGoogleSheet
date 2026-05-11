@@ -1,0 +1,239 @@
+{
+  "file": "image9.jpg",
+  "results": {
+    "ocr": {
+      "status": 200,
+      "ok": true,
+      "ms": 12779,
+      "body": {
+        "success": true,
+        "_debugEntries": [
+          {
+            "text": "QSA-KFC 323O KFC THE MALL 5 THAPRA",
+            "box": [
+              239,
+              434,
+              654,
+              476
+            ]
+          },
+          {
+            "text": "This is not a tax invoice.",
+            "box": [
+              218,
+              482,
+              706,
+              530
+            ]
+          },
+          {
+            "text": "Tu",
+            "box": [
+              202,
+              519,
+              713,
+              571
+            ]
+          },
+          {
+            "text": "Please take your order ticket to get the r",
+            "box": [
+              189,
+              567,
+              715,
+              613
+            ]
+          },
+          {
+            "text": "eceipt at the counter",
+            "box": [
+              320,
+              611,
+              586,
+              651
+            ]
+          },
+          {
+            "text": "KI0-5069",
+            "box": [
+              317,
+              685,
+              597,
+              764
+            ]
+          },
+          {
+            "text": "10/05/2026",
+            "box": [
+              575,
+              790,
+              709,
+              830
+            ]
+          },
+          {
+            "text": "Host: Kiosk2",
+            "box": [
+              203,
+              799,
+              364,
+              842
+            ]
+          },
+          {
+            "text": "13:08:02",
+            "box": [
+              601,
+              832,
+              711,
+              869
+            ]
+          },
+          {
+            "text": "KI0-5069",
+            "box": [
+              203,
+              842,
+              315,
+              882
+            ]
+          },
+          {
+            "text": "710201",
+            "box": [
+              626,
+              871,
+              711,
+              909
+            ]
+          },
+          {
+            "text": "1x Chick N'Roll",
+            "box": [
+              212,
+              1043,
+              418,
+              1084
+            ]
+          },
+          {
+            "text": "39.00",
+            "box": [
+              645,
+              1036,
+              721,
+              1076
+            ]
+          },
+          {
+            "text": "1x Shrimp Donut",
+            "box": [
+              216,
+              1088,
+              407,
+              1121
+            ]
+          },
+          {
+            "text": "39.00",
+            "box": [
+              645,
+              1076,
+              722,
+              1117
+            ]
+          },
+          {
+            "text": "Takeaway Total",
+            "box": [
+              224,
+              1163,
+              397,
+              1191
+            ]
+          },
+          {
+            "text": "78.00",
+            "box": [
+              649,
+              1153,
+              722,
+              1188
+            ]
+          },
+          {
+            "text": "ORKi Int",
+            "box": [
+              226,
+              1192,
+              334,
+              1226
+            ]
+          },
+          {
+            "text": "78.00",
+            "box": [
+              651,
+              1190,
+              719,
+              1216
+            ]
+          }
+        ],
+        "engine": "paddleocr",
+        "message": "Receipt read with PaddleOCR. Review the preview before submitting.",
+        "receipt": {
+          "products": [
+            {
+              "name": "1x Chick N'Roll",
+              "qty": "1",
+              "total": 39
+            },
+            {
+              "name": "1x Shrimp Donut",
+              "qty": "1",
+              "total": 39
+            }
+          ],
+          "total": 78,
+          "status": "Paid",
+          "dueDate": null,
+          "paymentType": "Cash"
+        },
+        "sheetPreview": {
+          "headers": [
+            "Date",
+            "Product",
+            "Qty",
+            "Price",
+            "Status",
+            "Due Date",
+            "Payment_Type"
+          ],
+          "rows": [
+            [
+              "Created when submitted",
+              "1x Chick N'Roll",
+              "1",
+              39,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "1x Shrimp Donut",
+              "1",
+              39,
+              "Paid",
+              "",
+              "Cash"
+            ]
+          ],
+          "total": 78
+        },
+        "rawText": "QSA-KFC 323O KFC THE MALL 5 THAPRA\nThis is not a tax invoice.\nTu\nPlease take your order ticket to get the r\neceipt at the counter\nKI0-5069\n10/05/2026\nHost: Kiosk2\n13:08:02\nKI0-5069\n710201\n1x Chick N'Roll\n39.00\n1x Shrimp Donut\n39.00\nTakeaway Total\n78.00\nORKi Int\n78.00"
+      }
+    }
+  }
+}

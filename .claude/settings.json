@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(node tests/debug-parse.mjs image3 2>&1)"
+    ]
+  }
+}

@@ -1,0 +1,859 @@
+{
+  "file": "image7.jpg",
+  "results": {
+    "ocr": {
+      "status": 200,
+      "ok": true,
+      "ms": 13787,
+      "body": {
+        "success": true,
+        "_debugEntries": [
+          {
+            "text": "Coles Supermarkets Austral Ia Pty Ltd",
+            "box": [
+              173,
+              141,
+              615,
+              186
+            ]
+          },
+          {
+            "text": "Tax Invo1ce ADN: 45 004 189 708",
+            "box": [
+              195,
+              159,
+              584,
+              207
+            ]
+          },
+          {
+            "text": "coles",
+            "box": [
+              285,
+              183,
+              558,
+              276
+            ]
+          },
+          {
+            "text": "Store: 710 - CS WORLD SQUARE",
+            "box": [
+              152,
+              277,
+              504,
+              327
+            ]
+          },
+          {
+            "text": "Store Manager: David",
+            "box": [
+              152,
+              308,
+              407,
+              351
+            ]
+          },
+          {
+            "text": "Phone:",
+            "box": [
+              152,
+              342,
+              234,
+              372
+            ]
+          },
+          {
+            "text": "02 8275 8600",
+            "box": [
+              288,
+              331,
+              445,
+              367
+            ]
+          },
+          {
+            "text": "Served By: Assisted Checkout",
+            "box": [
+              153,
+              355,
+              505,
+              397
+            ]
+          },
+          {
+            "text": "144",
+            "box": [
+              288,
+              385,
+              338,
+              416
+            ]
+          },
+          {
+            "text": "Receipt: 9758",
+            "box": [
+              485,
+              375,
+              654,
+              412
+            ]
+          },
+          {
+            "text": "Register:",
+            "box": [
+              153,
+              387,
+              274,
+              422
+            ]
+          },
+          {
+            "text": "10/05/2026",
+            "box": [
+              292,
+              407,
+              422,
+              441
+            ]
+          },
+          {
+            "text": "Time:",
+            "box": [
+              487,
+              406,
+              553,
+              435
+            ]
+          },
+          {
+            "text": "14:44",
+            "box": [
+              582,
+              402,
+              654,
+              434
+            ]
+          },
+          {
+            "text": "Date:",
+            "box": [
+              155,
+              415,
+              226,
+              447
+            ]
+          },
+          {
+            "text": "$",
+            "box": [
+              607,
+              453,
+              629,
+              481
+            ]
+          },
+          {
+            "text": "Description",
+            "box": [
+              158,
+              459,
+              304,
+              497
+            ]
+          },
+          {
+            "text": "5.00",
+            "box": [
+              593,
+              499,
+              654,
+              530
+            ]
+          },
+          {
+            "text": "*%TNCC FRUIT SALAD 220GRAM",
+            "box": [
+              162,
+              500,
+              483,
+              542
+            ]
+          },
+          {
+            "text": "2  $2.50 EACH",
+            "box": [
+              222,
+              528,
+              399,
+              563
+            ]
+          },
+          {
+            "text": "2.50",
+            "box": [
+              593,
+              546,
+              652,
+              576
+            ]
+          },
+          {
+            "text": "*%TNCC GUMMY BEARS 18OGRAM",
+            "box": [
+              165,
+              549,
+              482,
+              587
+            ]
+          },
+          {
+            "text": "9.00",
+            "box": [
+              594,
+              571,
+              650,
+              598
+            ]
+          },
+          {
+            "text": "*%CADBURY ROSES 38OGRAM",
+            "box": [
+              167,
+              573,
+              449,
+              610
+            ]
+          },
+          {
+            "text": "1.40",
+            "box": [
+              593,
+              593,
+              651,
+              623
+            ]
+          },
+          {
+            "text": "* C/CROUTONS SOUP 2SRV 6OGRAM",
+            "box": [
+              167,
+              594,
+              518,
+              633
+            ]
+          },
+          {
+            "text": "2.50",
+            "box": [
+              593,
+              616,
+              651,
+              645
+            ]
+          },
+          {
+            "text": "*%TNCC VEGAN 18OGRAM",
+            "box": [
+              168,
+              621,
+              413,
+              656
+            ]
+          },
+          {
+            "text": "2.80",
+            "box": [
+              591,
+              637,
+              650,
+              669
+            ]
+          },
+          {
+            "text": "*%MENTOS CUBE GUM ICE 46GRAM",
+            "box": [
+              169,
+              642,
+              507,
+              679
+            ]
+          },
+          {
+            "text": ".800",
+            "box": [
+              591,
+              659,
+              651,
+              693
+            ]
+          },
+          {
+            "text": "*%MENTOS CUBE GUM WATE 46GRAM",
+            "box": [
+              170,
+              665,
+              519,
+              701
+            ]
+          },
+          {
+            "text": "2.80",
+            "box": [
+              594,
+              685,
+              649,
+              712
+            ]
+          },
+          {
+            "text": "*%MENTOS CUBE GUM ICE 46GRAM",
+            "box": [
+              172,
+              688,
+              508,
+              725
+            ]
+          },
+          {
+            "text": "16.00",
+            "box": [
+              582,
+              705,
+              651,
+              738
+            ]
+          },
+          {
+            "text": "*%FERRERO ROCHER 3OPK 375GRAM",
+            "box": [
+              172,
+              711,
+              520,
+              747
+            ]
+          },
+          {
+            "text": "$44.80",
+            "box": [
+              572,
+              751,
+              654,
+              785
+            ]
+          },
+          {
+            "text": "Total for 10 items:",
+            "box": [
+              172,
+              760,
+              402,
+              793
+            ]
+          },
+          {
+            "text": "EFT",
+            "box": [
+              170,
+              808,
+              215,
+              836
+            ]
+          },
+          {
+            "text": "$44.80",
+            "box": [
+              576,
+              798,
+              656,
+              829
+            ]
+          },
+          {
+            "text": "GST INCLUDED IN TOTAL",
+            "box": [
+              171,
+              824,
+              430,
+              859
+            ]
+          },
+          {
+            "text": "$3.95",
+            "box": [
+              586,
+              821,
+              655,
+              849
+            ]
+          },
+          {
+            "text": "Coles",
+            "box": [
+              175,
+              893,
+              242,
+              919
+            ]
+          },
+          {
+            "text": "NSW AU",
+            "box": [
+              397,
+              885,
+              476,
+              915
+            ]
+          },
+          {
+            "text": "10/05/26 14:44",
+            "box": [
+              175,
+              909,
+              347,
+              941
+            ]
+          },
+          {
+            "text": "25068545",
+            "box": [
+              420,
+              906,
+              522,
+              937
+            ]
+          },
+          {
+            "text": "N710E4",
+            "box": [
+              547,
+              905,
+              624,
+              932
+            ]
+          },
+          {
+            "text": "*xxxx 6749",
+            "box": [
+              176,
+              934,
+              300,
+              961
+            ]
+          },
+          {
+            "text": "MASTERCARD",
+            "box": [
+              502,
+              928,
+              622,
+              955
+            ]
+          },
+          {
+            "text": "CREDIT ACCOUNT",
+            "box": [
+              177,
+              954,
+              347,
+              984
+            ]
+          },
+          {
+            "text": "MASTERCARD",
+            "box": [
+              502,
+              950,
+              621,
+              977
+            ]
+          },
+          {
+            "text": "APSN 000O ATC 0068",
+            "box": [
+              178,
+              973,
+              406,
+              1007
+            ]
+          },
+          {
+            "text": "A0000000041010",
+            "box": [
+              456,
+              971,
+              622,
+              1000
+            ]
+          },
+          {
+            "text": "PURCHASE",
+            "box": [
+              178,
+              999,
+              278,
+              1029
+            ]
+          },
+          {
+            "text": "AUD$ 44.80",
+            "box": [
+              502,
+              993,
+              621,
+              1021
+            ]
+          },
+          {
+            "text": "RRN 001440975800",
+            "box": [
+              178,
+              1019,
+              372,
+              1051
+            ]
+          },
+          {
+            "text": "(00)APPROVED",
+            "box": [
+              482,
+              1015,
+              621,
+              1043
+            ]
+          },
+          {
+            "text": "AUTH 067898",
+            "box": [
+              179,
+              1042,
+              313,
+              1073
+            ]
+          },
+          {
+            "text": "NO PIN OR SIGNATURE REQUIRED",
+            "box": [
+              178,
+              1060,
+              508,
+              1097
+            ]
+          },
+          {
+            "text": "Scanned Card NO: 279**x*xx8310",
+            "box": [
+              239,
+              1103,
+              588,
+              1140
+            ]
+          },
+          {
+            "text": "* = Specials",
+            "box": [
+              341,
+              1130,
+              486,
+              1157
+            ]
+          },
+          {
+            "text": "% = Taxable items",
+            "box": [
+              307,
+              1149,
+              509,
+              1182
+            ]
+          },
+          {
+            "text": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+            "box": [
+              184,
+              1172,
+              653,
+              1203
+            ]
+          },
+          {
+            "text": "$39.90",
+            "box": [
+              550,
+              1189,
+              665,
+              1241
+            ]
+          },
+          {
+            "text": "Total Savings",
+            "box": [
+              182,
+              1199,
+              420,
+              1253
+            ]
+          },
+          {
+            "text": "RXXXXXXXRXXXXXXXXXXXXXXXXXXXXXXXXXX*XXXXX",
+            "box": [
+              184,
+              1240,
+              655,
+              1272
+            ]
+          },
+          {
+            "text": "Total Savings include any Promotional",
+            "box": [
+              217,
+              1259,
+              640,
+              1299
+            ]
+          },
+          {
+            "text": "and Loyal ty Discounts.",
+            "box": [
+              311,
+              1284,
+              564,
+              1320
+            ]
+          },
+          {
+            "text": "Flybuys points as of yesterday: 1636",
+            "box": [
+              206,
+              1304,
+              624,
+              1348
+            ]
+          },
+          {
+            "text": "11005260710144975800",
+            "box": [
+              303,
+              1503,
+              545,
+              1542
+            ]
+          },
+          {
+            "text": "KitchenAld",
+            "box": [
+              350,
+              1544,
+              544,
+              1573
+            ]
+          },
+          {
+            "text": "FreeKitchenAld Cookware",
+            "box": [
+              299,
+              1565,
+              581,
+              1595
+            ]
+          },
+          {
+            "text": "with cookware credits",
+            "box": [
+              325,
+              1584,
+              558,
+              1610
+            ]
+          },
+          {
+            "text": "You have",
+            "box": [
+              271,
+              1635,
+              371,
+              1658
+            ]
+          },
+          {
+            "text": "27 cookware credits",
+            "box": [
+              385,
+              1632,
+              609,
+              1655
+            ]
+          },
+          {
+            "text": "Crudits earned this visit:",
+            "box": [
+              307,
+              1651,
+              537,
+              1674
+            ]
+          },
+          {
+            "text": "Compotition entries varned:",
+            "box": [
+              307,
+              1672,
+              549,
+              1692
+            ]
+          }
+        ],
+        "engine": "paddleocr",
+        "message": "Receipt read with PaddleOCR. Review the preview before submitting.",
+        "receipt": {
+          "products": [
+            {
+              "name": "%TNCC FRUIT SALAD 220GRAM",
+              "qty": "1",
+              "total": 5
+            },
+            {
+              "name": "%TNCC GUMMY BEARS 18OGRAM",
+              "qty": "1",
+              "total": 2.5
+            },
+            {
+              "name": "%CADBURY ROSES 38OGRAM",
+              "qty": "1",
+              "total": 9
+            },
+            {
+              "name": "C/CROUTONS SOUP 2SRV 6OGRAM",
+              "qty": "1",
+              "total": 1.4
+            },
+            {
+              "name": "%TNCC VEGAN 18OGRAM",
+              "qty": "1",
+              "total": 2.5
+            },
+            {
+              "name": "%MENTOS CUBE GUM ICE 46GRAM",
+              "qty": "1",
+              "total": 2.8
+            },
+            {
+              "name": "MENTOS CUBE GUM WATE 46GRAM",
+              "qty": "1",
+              "total": 2.8
+            },
+            {
+              "name": "%MENTOS CUBE GUM ICE 46GRAM",
+              "qty": "1",
+              "total": 2.8
+            },
+            {
+              "name": "%FERRERO ROCHER 3OPK 375GRAM",
+              "qty": "1",
+              "total": 16
+            }
+          ],
+          "total": 44.8,
+          "status": "Paid",
+          "dueDate": null,
+          "paymentType": "Cash"
+        },
+        "sheetPreview": {
+          "headers": [
+            "Date",
+            "Product",
+            "Qty",
+            "Price",
+            "Status",
+            "Due Date",
+            "Payment_Type"
+          ],
+          "rows": [
+            [
+              "Created when submitted",
+              "%TNCC FRUIT SALAD 220GRAM",
+              "1",
+              5,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "%TNCC GUMMY BEARS 18OGRAM",
+              "1",
+              2.5,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "%CADBURY ROSES 38OGRAM",
+              "1",
+              9,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "C/CROUTONS SOUP 2SRV 6OGRAM",
+              "1",
+              1.4,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "%TNCC VEGAN 18OGRAM",
+              "1",
+              2.5,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "%MENTOS CUBE GUM ICE 46GRAM",
+              "1",
+              2.8,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "MENTOS CUBE GUM WATE 46GRAM",
+              "1",
+              2.8,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "%MENTOS CUBE GUM ICE 46GRAM",
+              "1",
+              2.8,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "%FERRERO ROCHER 3OPK 375GRAM",
+              "1",
+              16,
+              "Paid",
+              "",
+              "Cash"
+            ]
+          ],
+          "total": 44.8
+        },
+        "rawText": "Coles Supermarkets Austral Ia Pty Ltd\nTax Invo1ce ADN: 45 004 189 708\ncoles\nStore: 710 - CS WORLD SQUARE\nStore Manager: David\nPhone:\n02 8275 8600\nServed By: Assisted Checkout\n144\nReceipt: 9758\nRegister:\n10/05/2026\nTime:\n14:44\nDate:\n$\nDescription\n5.00\n*%TNCC FRUIT SALAD 220GRAM\n2 $2.50 EACH\n2.50\n*%TNCC GUMMY BEARS 18OGRAM\n9.00\n*%CADBURY ROSES 38OGRAM\n1.40\n* C/CROUTONS SOUP 2SRV 6OGRAM\n2.50\n*%TNCC VEGAN 18OGRAM\n2.80\n*%MENTOS CUBE GUM ICE 46GRAM\n.800\n*%MENTOS CUBE GUM WATE 46GRAM\n2.80\n*%MENTOS CUBE GUM ICE 46GRAM\n16.00\n*%FERRERO ROCHER 3OPK 375GRAM\n$44.80\nTotal for 10 items:\nEFT\n$44.80\nGST INCLUDED IN TOTAL\n$3.95\nColes\nNSW AU\n10/05/26 14:44\n25068545\nN710E4\n*xxxx 6749\nMASTERCARD\nCREDIT ACCOUNT\nMASTERCARD\nAPSN 000O ATC 0068\nA0000000041010\nPURCHASE\nAUD$ 44.80\nRRN 001440975800\n(00)APPROVED\nAUTH 067898\nNO PIN OR SIGNATURE REQUIRED\nScanned Card NO: 279**x*xx8310\n* = Specials\n% = Taxable items\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n$39.90\nTotal Savings\nRXXXXXXXRXXXXXXXXXXXXXXXXXXXXXXXXXX*XXXXX\nTotal Savings include any Promotional\nand Loyal ty Discounts.\nFlybuys points as of yesterday: 1636\n11005260710144975800\nKitchenAld\nFreeKitchenAld Cookware\nwith cookware credits\nYou have\n27 cookware credits\nCrudits earned this visit:\nCompotition entries varned:"
+      }
+    }
+  }
+}

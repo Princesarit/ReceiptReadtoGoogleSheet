@@ -1,0 +1,556 @@
+{
+  "file": "image2.jpg",
+  "results": {
+    "ocr": {
+      "status": 200,
+      "ok": true,
+      "ms": 12426,
+      "body": {
+        "success": true,
+        "_debugEntries": [
+          {
+            "text": "watsons",
+            "box": [
+              380,
+              109,
+              629,
+              158
+            ]
+          },
+          {
+            "text": "POS (4)E030300002A1088",
+            "box": [
+              402,
+              175,
+              635,
+              217
+            ]
+          },
+          {
+            "text": "TAX IDN 0105539086260 (VAT INCLUDED)",
+            "box": [
+              326,
+              195,
+              683,
+              246
+            ]
+          },
+          {
+            "text": "WATSON THE MALL THAP",
+            "box": [
+              391,
+              222,
+              595,
+              268
+            ]
+          },
+          {
+            "text": "RECEIPT / TAX INVOICE (ABB)",
+            "box": [
+              361,
+              242,
+              633,
+              291
+            ]
+          },
+          {
+            "text": "Supervisor #1",
+            "box": [
+              318,
+              301,
+              454,
+              338
+            ]
+          },
+          {
+            "text": "DUPLICATE RECEIPT",
+            "box": [
+              297,
+              312,
+              644,
+              367
+            ]
+          },
+          {
+            "text": "216.00",
+            "box": [
+              596,
+              400,
+              669,
+              438
+            ]
+          },
+          {
+            "text": "291229 B+L 2 So1f Len8 Mo",
+            "box": [
+              298,
+              408,
+              554,
+              453
+            ]
+          },
+          {
+            "text": "155.00",
+            "box": [
+              598,
+              431,
+              669,
+              468
+            ]
+          },
+          {
+            "text": "T",
+            "box": [
+              697,
+              436,
+              704,
+              450
+            ]
+          },
+          {
+            "text": "326720 Rohto Eys Brops Co",
+            "box": [
+              300,
+              439,
+              555,
+              484
+            ]
+          },
+          {
+            "text": "109.00",
+            "box": [
+              600,
+              461,
+              672,
+              499
+            ]
+          },
+          {
+            "text": "324441 NVMicellarSooth125",
+            "box": [
+              301,
+              469,
+              555,
+              513
+            ]
+          },
+          {
+            "text": "0.00",
+            "box": [
+              619,
+              495,
+              671,
+              526
+            ]
+          },
+          {
+            "text": "1",
+            "box": [
+              697,
+              498,
+              705,
+              514
+            ]
+          },
+          {
+            "text": "253151 CPRedemptionAl101v",
+            "box": [
+              300,
+              499,
+              557,
+              543
+            ]
+          },
+          {
+            "text": "-55.00",
+            "box": [
+              601,
+              521,
+              671,
+              557
+            ]
+          },
+          {
+            "text": "03 Redemation Packag",
+            "box": [
+              331,
+              532,
+              538,
+              570
+            ]
+          },
+          {
+            "text": "425.00",
+            "box": [
+              601,
+              580,
+              672,
+              616
+            ]
+          },
+          {
+            "text": "4 SUBTOTAL",
+            "box": [
+              324,
+              594,
+              430,
+              626
+            ]
+          },
+          {
+            "text": "0.00",
+            "box": [
+              624,
+              669,
+              676,
+              701
+            ]
+          },
+          {
+            "text": "I",
+            "box": [
+              696,
+              671,
+              713,
+              694
+            ]
+          },
+          {
+            "text": "253151 CPRedemptionallDi:",
+            "box": [
+              300,
+              674,
+              560,
+              715
+            ]
+          },
+          {
+            "text": "5 SUBTOTAL",
+            "box": [
+              317,
+              735,
+              431,
+              775
+            ]
+          },
+          {
+            "text": "425.00",
+            "box": [
+              604,
+              726,
+              679,
+              768
+            ]
+          },
+          {
+            "text": "5 SUBTOTAL",
+            "box": [
+              315,
+              855,
+              427,
+              896
+            ]
+          },
+          {
+            "text": "0.00",
+            "box": [
+              630,
+              852,
+              684,
+              887
+            ]
+          },
+          {
+            "text": "CHANGE",
+            "box": [
+              330,
+              953,
+              401,
+              987
+            ]
+          },
+          {
+            "text": "0.0Q",
+            "box": [
+              634,
+              947,
+              688,
+              982
+            ]
+          },
+          {
+            "text": "CHANGE",
+            "box": [
+              330,
+              985,
+              402,
+              1019
+            ]
+          },
+          {
+            "text": "425.00",
+            "box": [
+              614,
+              980,
+              688,
+              1014
+            ]
+          },
+          {
+            "text": "VAT RECEIPT SUMMARY",
+            "box": [
+              399,
+              1045,
+              610,
+              1076
+            ]
+          },
+          {
+            "text": "Rate",
+            "box": [
+              294,
+              1073,
+              347,
+              1108
+            ]
+          },
+          {
+            "text": "NET",
+            "box": [
+              412,
+              1074,
+              451,
+              1108
+            ]
+          },
+          {
+            "text": "VAT",
+            "box": [
+              516,
+              1075,
+              558,
+              1108
+            ]
+          },
+          {
+            "text": "TOTAL",
+            "box": [
+              627,
+              1074,
+              690,
+              1109
+            ]
+          },
+          {
+            "text": "T 7.00%",
+            "box": [
+              299,
+              1106,
+              389,
+              1138
+            ]
+          },
+          {
+            "text": "397.20",
+            "box": [
+              411,
+              1105,
+              484,
+              1138
+            ]
+          },
+          {
+            "text": "27.80",
+            "box": [
+              517,
+              1106,
+              581,
+              1140
+            ]
+          },
+          {
+            "text": "425.00",
+            "box": [
+              629,
+              1108,
+              700,
+              1138
+            ]
+          },
+          {
+            "text": "VAT NO. 0105539086260",
+            "box": [
+              381,
+              1169,
+              613,
+              1205
+            ]
+          },
+          {
+            "text": "YOUR SAVINGS TODAY!",
+            "box": [
+              297,
+              1229,
+              506,
+              1272
+            ]
+          },
+          {
+            "text": "TOTAL DYSCOUNTS",
+            "box": [
+              315,
+              1296,
+              488,
+              1334
+            ]
+          },
+          {
+            "text": "0",
+            "box": [
+              568,
+              1299,
+              584,
+              1327
+            ]
+          },
+          {
+            "text": "-55.00",
+            "box": [
+              618,
+              1290,
+              694,
+              1327
+            ]
+          },
+          {
+            "text": "*****",
+            "box": [
+              296,
+              1357,
+              736,
+              1390
+            ]
+          },
+          {
+            "text": "STATEMENT",
+            "box": [
+              438,
+              1388,
+              540,
+              1417
+            ]
+          }
+        ],
+        "engine": "paddleocr",
+        "message": "Receipt read with PaddleOCR. Review the preview before submitting.",
+        "receipt": {
+          "products": [
+            {
+              "name": "B+L 2 So1f Len8 Mo",
+              "qty": "1",
+              "total": 216
+            },
+            {
+              "name": "Rohto Eys Brops Co",
+              "qty": "1",
+              "total": 155
+            },
+            {
+              "name": "NVMicellarSooth125",
+              "qty": "1",
+              "total": 109
+            },
+            {
+              "name": "CPRedemptionAl101v",
+              "qty": "1",
+              "total": 0
+            },
+            {
+              "name": "03 Redemation Packag",
+              "qty": "1",
+              "total": -55
+            },
+            {
+              "name": "CPRedemptionallDi:",
+              "qty": "1",
+              "total": 0
+            }
+          ],
+          "total": 425,
+          "status": "Paid",
+          "dueDate": null,
+          "paymentType": "Cash"
+        },
+        "sheetPreview": {
+          "headers": [
+            "Date",
+            "Product",
+            "Qty",
+            "Price",
+            "Status",
+            "Due Date",
+            "Payment_Type"
+          ],
+          "rows": [
+            [
+              "Created when submitted",
+              "B+L 2 So1f Len8 Mo",
+              "1",
+              216,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "Rohto Eys Brops Co",
+              "1",
+              155,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "NVMicellarSooth125",
+              "1",
+              109,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "CPRedemptionAl101v",
+              "1",
+              0,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "03 Redemation Packag",
+              "1",
+              -55,
+              "Paid",
+              "",
+              "Cash"
+            ],
+            [
+              "Created when submitted",
+              "CPRedemptionallDi:",
+              "1",
+              0,
+              "Paid",
+              "",
+              "Cash"
+            ]
+          ],
+          "total": 425
+        },
+        "rawText": "watsons\nPOS (4)E030300002A1088\nTAX IDN 0105539086260 (VAT INCLUDED)\nWATSON THE MALL THAP\nRECEIPT / TAX INVOICE (ABB)\nSupervisor #1\nDUPLICATE RECEIPT\n216.00\n291229 B+L 2 So1f Len8 Mo\n155.00\nT\n326720 Rohto Eys Brops Co\n109.00\n324441 NVMicellarSooth125\n0.00\n1\n253151 CPRedemptionAl101v\n-55.00\n03 Redemation Packag\n425.00\n4 SUBTOTAL\n0.00\nI\n253151 CPRedemptionallDi:\n5 SUBTOTAL\n425.00\n5 SUBTOTAL\n0.00\nCHANGE\n0.0Q\nCHANGE\n425.00\nVAT RECEIPT SUMMARY\nRate\nNET\nVAT\nTOTAL\nT 7.00%\n397.20\n27.80\n425.00\nVAT NO. 0105539086260\nYOUR SAVINGS TODAY!\nTOTAL DYSCOUNTS\n0\n-55.00\n*****\nSTATEMENT"
+      }
+    }
+  }
+}
